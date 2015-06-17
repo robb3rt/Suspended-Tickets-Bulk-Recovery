@@ -1,4 +1,19 @@
 <section data-main/>
-<select id="zTypes">
-<option value="test">Test</option>
-</select>
+<table class="content">
+    <tbody>
+        <tr class="content">
+            <td class="causes">
+                {{#each causes}}
+                    <input type="checkbox"  value="{{.}}">{{.}}<br>
+                {{/each}}
+                <br>
+                <button class="btn submit">Recover</button>
+            </td>
+            <td class="infos">
+                <h2 class="infoheader">Some infos</h2><br>
+                <p class="totals">You can recover <b>{{total}}</b> suspended tickets in total</p><br>
+                <p class="selected">You have selected <b>{{selected}}</b> tickets to be recovered</p><br>
+            </td>
+        </tr>
+    </tbody>
+</table>
