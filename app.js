@@ -17,11 +17,23 @@
                     dataType: "json"
                 };
             },
+			recoverSuspendedTicket: function(id){
+				return {
+					url: "/api/v2/suspended_tickets/" + id + "/recover.json",
+					type: "PUT",
+					dataType: "json"
+				};
+			}
       },
     events: {
-      'app.activated':'doSomething'
+      'app.activated':'doSomething',
+	  'click button.submit': 'submitForm',
     },
-
+	submitForm: function(){
+		//find out which causes are selected.
+		
+		//loop through all suspended tickets and see if the suspended tickets has a cause that matches one of the selected causes.
+	},
     doSomething: function() {
         //get suspended tickets.
         this.ajax('getSuspendedTickets')
@@ -38,7 +50,6 @@
 				            results.push(restdata.suspended_tickets);
 				        });
 				}
-                //console.dir(results);
                 for (var a = 0; a < results.length; a++){
                     for (var b = 0; b < results[a].length; b++){
                         causes.push(results[a][b].cause);
@@ -47,7 +58,8 @@
                 causes = _.uniq(causes);
                 console.dir(causes);
                 this.switchTo('suspendtypes', {
-							causes: causes
+							causes: causes,
+							total: data.count
 				});
                 //TODO: add functionality to recover tickets for the cause of suspension
             });

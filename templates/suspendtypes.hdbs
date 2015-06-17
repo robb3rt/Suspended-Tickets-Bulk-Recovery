@@ -3,11 +3,13 @@
     <tbody>
         <tr class="content">
             <td class="causes">
-                {{#each causes}}
-                    <input type="checkbox"  value="{{.}}">{{.}}<br>
-                {{/each}}
-                <br>
-                <button class="btn submit">Recover</button>
+				<div class="causes">
+					{{#each causes}}
+						<label><input type="checkbox" value="{{.}}" />{{.}}</label>
+					{{/each}}
+					<br>
+					<button class="btn submit">Recover</button>
+				</div>
             </td>
             <td class="infos">
                 <h2 class="infoheader">Some infos</h2><br>

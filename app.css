@@ -4,9 +4,11 @@
     color: #333;
     box-shadow: 0px 1px 0px #FFF inset;
 }
+
 button {
     color:inherit;
 }
+
 .btn {
     display: inline-block;
     padding: 5px 10px;
@@ -26,13 +28,21 @@ button {
     white-space: nowrap;
 }
 
-.causes > input {
-    margin-right:10px;
-    margin-bottom:1px;
+label {
+	padding:10px;
+	display:block;
 }
 
+input {
+	display: inline;
+	margin-right: 10px;
+}
+
+
 .infos {
-width:300px;
+	padding: 20px;	
+	width:300px;
+	border:1px solid #ccc;
 }
 
 .content {
