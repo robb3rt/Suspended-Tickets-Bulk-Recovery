@@ -10,7 +10,7 @@
                     dataType: "json"
                 };
             },
-            getSuspendedTicketsByPage: function(query, x){
+            getSuspendedTicketsByPage: function(x){
                 return {
                     url: "/api/v2/suspended_tickets.json?page=" + x,
                     type: "GET",
@@ -46,7 +46,7 @@
             .done(function(data) {
                 if (data.count === 0){this.switchTo('suspendtypes');return;} //TODO: Add layout for nothing found
 				var size = Math.ceil(data.count/100);
-                results = new Array(size-1);
+                var results = (size == 1) ? new Array(0) : new Array(size-2);
 				results.push(data.suspended_tickets);
 				for (var i = 1; i < size; i++){
 				    /*jshint loopfunc: true */
@@ -64,7 +64,6 @@
                         //get id's that match the causes.
                     }
                 }
-                console.dir(ids);
                 var here = this;
                 _.each(ids, function(id){here.ajax('recoverSuspendedTicket', id);});
                 this.switchTo('suspendtypes');
@@ -76,7 +75,7 @@
             .done(function(data) {
                 if (data.count === 0){this.switchTo('suspendtypes');return;} //TODO: Add layout for nothing found
 				var size = Math.ceil(data.count/100);
-                results = new Array(size-1);
+                var results = (size == 1) ? new Array(0) : new Array(size-2);
 				results.push(data.suspended_tickets);
 				for (var i = 1; i < size; i++){
 				    /*jshint loopfunc: true */
