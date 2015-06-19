@@ -27,7 +27,11 @@
       },
     events: {
       'app.activated':'doSomething',
-	  'click button.submit': 'submitForm'
+	  'click button.submit': 'submitForm',
+      'click i.icon-refresh': 'refreshall'
+    },
+    refreshall: function(){
+        this.getSuspendedTickets();
     },
 	submitForm: function(){
 		//find out which causes are selected.
@@ -73,6 +77,7 @@
             });
     },
     getSuspendedTickets: function(){
+        this.switchTo('loading');
         this.ajax('getSuspendedTickets')
             .done(function(data) {
                 if (data.count === 0){this.switchTo('suspendtypes');return;} //TODO: Add layout for nothing found

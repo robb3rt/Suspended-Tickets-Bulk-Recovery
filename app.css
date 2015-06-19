@@ -6,7 +6,7 @@
 }
 
 button {
-    color:inherit;
+    color: inherit;
 }
 
 .btn {
@@ -29,8 +29,8 @@ button {
 }
 
 label {
-	padding:10px;
-	display:block;
+	padding: 10px;
+	display: block;
 }
 
 input {
@@ -42,10 +42,16 @@ input {
 
 .infos {
 	padding: 20px;	
-	width:300px;
-	border:1px solid #ccc;
+	width: 300px;
+	border: 1px solid #ccc;
 }
 
 .content {
     width:100%;
+}
+
+.icon-refresh {
+    cursor: pointer;
+    position: absolute;
+    right: 30px;
 }
