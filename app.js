@@ -69,7 +69,7 @@
                                 }
                                 var here = this;
                                 _.each(ids, function(id){here.ajax('recoverSuspendedTicket', id);});
-                                this.switchTo('suspendtypes');
+                                this.getSuspendedTickets();
                             }
                         });
 				}
