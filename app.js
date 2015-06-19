@@ -82,19 +82,21 @@
 				    this.ajax('getSuspendedTicketsByPage', i+1)
 				        .done(function(restdata){
 				            results.push(restdata.suspended_tickets);
+                            if (!restdata.next_page){
+                                var causes = [];
+                                for (var a = 0; a < results.length; a++){
+                                    for (var b = 0; b < results[a].length; b++){
+                                        causes.push(results[a][b].cause);
+                                    }
+                                }
+                                causes = _.uniq(causes);
+                                this.switchTo('suspendtypes', {
+                                    causes: causes,
+                                    total: data.count
+                                });
+                            }
 				        });
 				}
-                var causes = [];
-                for (var a = 0; a < results.length; a++){
-                    for (var b = 0; b < results[a].length; b++){
-                        causes.push(results[a][b].cause);
-                    }
-                }
-                causes = _.uniq(causes);
-                this.switchTo('suspendtypes', {
-                    causes: causes,
-                    total: data.count
-                });
                 //TODO: add functionality to recover tickets for the cause of suspension
             });
     },
