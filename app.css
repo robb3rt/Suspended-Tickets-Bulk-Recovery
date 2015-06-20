@@ -29,19 +29,42 @@ button {
 }
 
 label {
+	margin-bottom: 10px;
+	color: #666;
 	padding: 10px;
 	display: block;
+	text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+	position:relative;
+    background-color: #FFF;
+    background-image: none;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    box-shadow: none;
 }
 
-input {
+label:hover {
+    background-color: #FBFBFB;
+    border-color: #CCC;
+    box-shadow: 0px 1px 0px #FFF inset;
+}
+
+
+input[type=checkbox] {
 	display: inline;
+	position: absolute;
+	left: 10px;
 	margin-right: 10px;
     margin-bottom: 3px;
 }
 
+input[type=checkbox]:checked ~ .icon-chevron-left {
+   display: inline;
+}
 
 .infos {
-	padding: 20px;	
+	padding: 20px;
 	width: 300px;
 	border: 1px solid #ccc;
 }
@@ -54,4 +77,19 @@ input {
     cursor: pointer;
     position: absolute;
     right: 30px;
+}
+
+.icon-chevron-left {
+	display: none;
+	color: #ccc;
+	border-radius: 50%;
+	position: absolute;
+    right: 10px;
+}
+
+div.causes {
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 10px;
 }

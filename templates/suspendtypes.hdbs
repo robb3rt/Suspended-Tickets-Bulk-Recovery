@@ -5,14 +5,19 @@
             <td class="causes">
 				<div class="causes">
 					{{#each causes}}
-						<label><input type="checkbox" value="{{.}}" />{{.}}</label>
+						<div>
+							<label>
+								<input type="checkbox" value="{{.}}" />{{.}}<i class="icon-chevron-left"></i>
+							</label>
+							
+						</div>
 					{{/each}}
 					<br>
 					<button class="btn submit">Recover</button>
 				</div>
             </td>
             <td class="infos">
-                <i class="icon-refresh"></i>
+                <i class="icon-refresh icon-2x"></i>
                 <h2 class="infoheader">Some infos</h2><br>
                 <p class="totals">You can recover <b>{{total}}</b> suspended tickets in total</p><br>
                 <p class="selected">You have selected <b>{{selected}}</b> tickets to be recovered</p><br>
