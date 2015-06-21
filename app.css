@@ -32,69 +32,94 @@ button {
 	margin-bottom: 20px;
 }
 
-label {
-	color: #666;
-	padding: 10px;
+.item {
+	-webkit-user-select: none;       
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
 	display: block;
 	text-align: center;
     vertical-align: middle;
-    cursor: pointer;
 	position:relative;
     background-image: none;
     box-shadow: none;
 }
 
-label.unselected {
+label {
+	padding: 10px;
+}
+
+.item.unselected {
 	border: 1px solid #DDD;
 	border-radius: 4px;
 	color: #666;
 	background: none;
 }
 
-label.selected {
+.item.selected {
 	border: 1px solid #DDD;
 	border-radius: 4px;
-	color: #fff;
 	background: #78A300;
 }
 
-label.first {
+.item.first{
+	border: none;
 	border-top: 1px solid #DDD;
 	border-right: 1px solid #DDD;
 	border-left: 1px solid #DDD;
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
 }
 
-label.middle {
+.item.middle {
+	border: none;
 	border-top: 1px solid #DDD;
 	border-right: 1px solid #DDD;
 	border-left: 1px solid #DDD;
+	border-radius: 0px;
 }
 
-label.last {
+.item.last {
 	border: 1px solid #DDD;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
 	border-bottom-left-radius: 4px;
 	border-bottom-right-radius: 4px;
 }
 
-label.unselected:hover {
+.item.unselected:hover {
     background-color: #FBFBFB;
     border-color: #CCC;
     box-shadow: 0px 1px 0px #FFF inset;
 }
 
+.item.head.unselected:hover  .unfold {
+	color: #666;
+    display: inline;
+}
+
+.item.head.selected:hover  .unfold {
+	color: #fff;
+    display: inline;
+}
+
+.item.head:hover label {
+	width: 540px;
+}
+
+.item.selected label {
+	color: #fff;
+}
 
 input[type=checkbox] {
-	display: inline;
+	display: none;
 	position: absolute;
 	left: 10px;
 	margin-right: 10px;
     margin-bottom: 3px;
-}
-
-input[type=checkbox]:checked ~ .icon-chevron-left {
-   display: inline;
 }
 
 .infos {
@@ -115,16 +140,38 @@ input[type=checkbox]:checked ~ .icon-chevron-left {
     right: 20px;
 }
 
-.icon-chevron-left {
+.selected .unfold:hover {
+	background: #95BE22;
+}
+
+.unselected .unfold:hover {
+	color: #fff !important;
+	background: #95BE22;
+}
+
+.unfold {
+	-webkit-user-select: none;       
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	display: inline-block;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 25px;
+	cursor: pointer;
 	display: none;
-	color: #ccc;
-	border-radius: 50%;
+	color: #fff;
 	position: absolute;
-    right: 10px;
+    right: 0px;
+	top: 0px;
+	position: absolute;
+	width: 38px;
+	height: 100%;
 }
 
 div.causes {
-	width: 500px;
+	width: 600px;
 	margin-left: auto;
 	margin-right: auto;
 	padding: 10px;
@@ -132,4 +179,27 @@ div.causes {
 
 .underlings {
 	display: none;
+}
+
+.itemcount {
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding:5px 8px;
+	display:inline-block;
+	vertical-align: middle;
+	position: absolute;
+	left: 4px;
+	top: 4px;
+	font-size: 12px;
+	text-align: center;
+}
+
+.used .itemcount {
+	background: #95BE22;
+	color: #fff;
+}
+
+.unselected .itemcount {
+	background: #eee;
+	color: #000;
 }

@@ -44,22 +44,96 @@
 			'app.activated':'doSomething',
 			'click button.submit': 'submitForm',
 			'click i.icon-refresh': 'refreshall',
-			'click .unfold': 'unfoldTickets',
-			'mouseup .unfold': 'unfoldTickets',
-			'moudedown .unfold': 'unfoldTickets',
-			'mouseup .unselected': 'markCause',
-			'mouseup .selected': 'unmarkCause'
+			'mouseup .unselected label': 'selectCause',
+			'mouseup .selected label': 'unselectCause',
+			'mouseup .unfold.expand': 'expandCause',
+			'mouseup .unfold.minimize': 'minimizeCause',
+			'change .underlings input[type=checkbox]':'selectItems',
+			'change .head input[type=checkbox]': 'selectHeads'
 		},
-		markCause: function(evt){
-			evt.currentTarget.classList.remove("unselected");
-			evt.currentTarget.className = evt.currentTarget.className + " selected";
+		selectItems: function(evt){
+			//look for max amount of input fields
+			if (evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
+				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML) + 1;
+			} else {
+				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML) - 1;
+			}
+			if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == 0){
+				//remove used class, since nothing is selected
+				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
+			} else {
+				//add class saying this is used
+				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className = evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.contains("used") ? evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className : evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className + " used";
+				var here = this;
+				var length = 0;
+				_.each(evt.currentTarget.parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
+					if (i.type == "checkbox"){
+						length += 1;
+					}
+				});
+				if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
+					//add class marking that all items have been selected.
+					evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
+					this.markCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
+				} else {
+					//add class marking that some items have been selected.
+					evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
+					this.unmarkCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
+				}
+			}
+			//check if selecting or deselecting
+			this.updateSelected();
 		},
-		unmarkCause: function(evt){
-			evt.currentTarget.classList.remove("selected");
-			evt.currentTarget.className = evt.currentTarget.className + " unselected";
+		selectHeads: function(evt){
+			var here = this;
+			var length = 0;
+			_.each(evt.currentTarget.parentNode.parentNode.parentNode.childNodes[3].getElementsByTagName('input'), function(i){
+				if (i.type == "checkbox"){
+					length += 1;
+				}
+				if (i.type == "checkbox" && evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
+					i.checked = true;
+					here.markCause(i.parentNode.parentNode);
+				} else {
+					i.checked = false;
+					here.unmarkCause(i.parentNode.parentNode);
+				}
+			});
+			evt.currentTarget.parentNode.parentNode.childNodes[1].innerHTML = evt.currentTarget.parentNode.parentNode.classList.contains("selected") ? length : 0;
+			here.updateSelected();
 		},
-		unfold: function(evt){
-			evt.preventDefault();
+		updateSelected: function(){
+			this.$('#selected')[0].innerHTML = this.$('.underlings input[type=checkbox]:checked').length;
+		},
+		expandCause: function(evt){
+			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "inline";
+			evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.className + " first";
+			evt.currentTarget.innerHTML = "-";
+			evt.currentTarget.classList.remove("expand");
+			evt.currentTarget.className = evt.currentTarget.className + " minimize";
+		},
+		minimizeCause: function(evt){
+			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "none";
+			evt.currentTarget.parentNode.classList.remove("first");
+			evt.currentTarget.innerHTML = "+";
+			evt.currentTarget.classList.remove("minimize");
+			evt.currentTarget.className = evt.currentTarget.className + " expand";
+		},
+		selectCause: function(evt){
+			this.markCause(evt.currentTarget.parentNode);
+		},
+		unselectCause: function(evt){
+			this.unmarkCause(evt.currentTarget.parentNode);
+		},
+		markCause: function(e){
+			e.classList.remove("unselected");
+			e.className = e.classList.contains("used") ? e.className : e.className + " used";
+			e.className = e.classList.contains("selected") ? e.className : e.className + " selected";
+		},
+		unmarkCause: function(e){
+			e.classList.remove("selected");
+			e.classList.remove("used");
+			e.className = e.classList.contains("unselected") ? e.className : e.className + " unselected";
 		},
 		refreshall: function(){
 			this.switchTo('loading');
