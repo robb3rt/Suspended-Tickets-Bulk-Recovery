@@ -5,22 +5,34 @@
             <td class="causes">
 				<div class="causes">
 					{{#each causes}}
-						<div>
-							<label>
-								<input type="checkbox" value="{{.}}" />{{.}}<i class="icon-chevron-left"></i>
+						<div class="cause">
+							<label class="unselected">
+								<input type="checkbox" value="{{.}}" />{{.}}<i class="unfold icon-chevron-left"></i>
 							</label>
-							
+							<div class="underlings">
+								<label class="middle">
+									<input type="checkbox" value="{{.}}" />{{.}}<i class="unfold icon-chevron-left"></i>
+								</label>
+								<label class="middle">
+									<input type="checkbox" value="{{.}}" />{{.}}<i class="unfold icon-chevron-left"></i>
+								</label class="middle">
+								<label class="last">
+									<input type="checkbox" value="{{.}}" />{{.}}<i class="unfold icon-chevron-left"></i>
+								</label>
+							</div>
 						</div>
 					{{/each}}
 					<br>
 					<button class="btn submit">Recover</button>
 				</div>
             </td>
-            <td class="infos">
-                <i class="icon-refresh icon-2x"></i>
-                <h2 class="infoheader">Some infos</h2><br>
-                <p class="totals">You can recover <b>{{total}}</b> suspended tickets in total</p><br>
-                <p class="selected">You have selected <b>{{selected}}</b> tickets to be recovered</p><br>
+            <td>
+				<div class="infos">
+					<i class="icon-refresh icon-2x"></i>
+					<h2 class="infoheader">Some infos</h2><br>
+					<p class="totals">You can recover <b>{{total}}</b> suspended tickets in total</p><br>
+					<p class="selected">You have selected <b>{{selected}}</b> tickets to be recovered</p><br>
+				</div>
             </td>
         </tr>
     </tbody>

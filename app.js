@@ -43,7 +43,23 @@
 		events: {
 			'app.activated':'doSomething',
 			'click button.submit': 'submitForm',
-			'click i.icon-refresh': 'refreshall'
+			'click i.icon-refresh': 'refreshall',
+			'click .unfold': 'unfoldTickets',
+			'mouseup .unfold': 'unfoldTickets',
+			'moudedown .unfold': 'unfoldTickets',
+			'mouseup .unselected': 'markCause',
+			'mouseup .selected': 'unmarkCause'
+		},
+		markCause: function(evt){
+			evt.currentTarget.classList.remove("unselected");
+			evt.currentTarget.className = evt.currentTarget.className + " selected";
+		},
+		unmarkCause: function(evt){
+			evt.currentTarget.classList.remove("selected");
+			evt.currentTarget.className = evt.currentTarget.className + " unselected";
+		},
+		unfold: function(evt){
+			evt.preventDefault();
 		},
 		refreshall: function(){
 			this.switchTo('loading');
@@ -89,6 +105,8 @@
 						_.each(ids, function(id){here.ajax('recoverSuspendedTicket', id);});
 						this.paginateTickets("/api/v2/suspended_tickets.json", "");
 						return
+						//TODO:
+						//see if possible to turn off triggers that send email notifications.
 						
 						/**** Updatemany should only be used
 						**** when the cause of suspension is not "received from support address" *****
