@@ -46,8 +46,12 @@
 			'click i.icon-refresh': 'refreshall',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
+			'mouseup .unselected .time.parsed': 'selectCause',
+			'mouseup .selected .time.parsed': 'unselectCause',
 			'mouseup .unselected label': 'selectCause',
 			'mouseup .selected label': 'unselectCause',
+			'mouseup .unselected .time.parsed': 'selectCause',
+			'mouseup .selected .time.parsed': 'unselectCause',
 			'mouseup .unfold.expand': 'expandCause',
 			'mouseup .unfold.minimize': 'minimizeCause',
             'mouseup *': 'deleteRegister',
@@ -139,12 +143,16 @@
 		selectCause: function(evt){
             if(evt.currentTarget.classList.contains("clickedthis")){
                 this.markCause(evt.currentTarget.parentNode);
-            }
+            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.classList.contains("info")){
+				this.markCause(evt.currentTarget.parentNode.parentNode);
+			}
 		},
 		unselectCause: function(evt){
             if(evt.currentTarget.classList.contains("clickedthis")){
                 this.unmarkCause(evt.currentTarget.parentNode);
-            }
+            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.classList.contains("info")){
+				this.unmarkCause(evt.currentTarget.parentNode.parentNode);
+			}
 		},
 		markCause: function(e){
 			e.classList.remove("unselected");

@@ -15,11 +15,11 @@
                                 {{#each suspended}}
                                     {{#if @last}}
                                         <div class="item unselected last">
-                                            <label><input type="checkbox" value="{{id}}" /><span>{{created_at}}</span>{{subject}}</label>
+                                            <label><input type="checkbox" value="{{id}}" /><span class="time parsed">{{created_at}}</span>{{subject}}</label>
                                         </div>
                                     {{else}}
                                         <div class="item unselected middle">
-                                            <label><input type="checkbox" value="{{id}}" /><span>{{created_at}}</span>{{subject}}</label>
+                                            <label><input type="checkbox" value="{{id}}" /><span class="suspended info time parsed">{{created_at}}</span>{{subject}}<span class="suspended info from mail"></span></label>
                                         </div>
                                     {{/if}}
                                 {{/each}}

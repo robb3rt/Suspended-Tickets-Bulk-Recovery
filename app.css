@@ -207,3 +207,8 @@ div.causes {
 	background: #eee;
 	color: #000;
 }
+
+label .suspended.time.parsed{
+	position:absolute;
+	left: 10px;
+}
