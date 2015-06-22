@@ -44,13 +44,24 @@
 			'app.activated':'doSomething',
 			'click button.submit': 'submitForm',
 			'click i.icon-refresh': 'refreshall',
+            'mousedown .unselected label': 'mouseDownRegister',
+            'mousedown .selected label': 'mouseDownRegister',
 			'mouseup .unselected label': 'selectCause',
 			'mouseup .selected label': 'unselectCause',
 			'mouseup .unfold.expand': 'expandCause',
 			'mouseup .unfold.minimize': 'minimizeCause',
+            'mouseup *': 'deleteRegister',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
+        mouseDownRegister: function(evt){
+            evt.currentTarget.className = evt.currentTarget.classList.contains("clickedthis") ? evt.currentTarget.className : evt.currentTarget.className + " clickedthis";
+        },
+        deleteRegister: function(evt){
+            _.each(this.$(".clickedthis"), function(i){
+                i.classList.remove("clickedthis");
+            });
+        },
 		selectItems: function(evt){
 			//look for max amount of input fields
 			if (evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
@@ -63,7 +74,6 @@
 				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
 			} else {
 				//add class saying this is used
-				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className = evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.contains("used") ? evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className : evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className + " used";
 				var here = this;
 				var length = 0;
 				_.each(evt.currentTarget.parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
@@ -77,7 +87,8 @@
 					this.markCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				} else {
 					//add class marking that some items have been selected.
-					evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
+                    evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className = evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.contains("used") ? evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className : evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className + " used";
+                evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
 					this.unmarkCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				}
 			}
@@ -99,7 +110,13 @@
 					here.unmarkCause(i.parentNode.parentNode);
 				}
 			});
-			evt.currentTarget.parentNode.parentNode.childNodes[1].innerHTML = evt.currentTarget.parentNode.parentNode.classList.contains("selected") ? length : 0;
+            var selected = evt.currentTarget.parentNode.parentNode.classList.contains("selected");
+            if (selected){
+                evt.currentTarget.parentNode.parentNode.className = evt.currentTarget.parentNode.parentNode.classList.contains("used") ? evt.currentTarget.parentNode.parentNode.className : evt.currentTarget.parentNode.parentNode.className + " used" ;
+            } else {
+               evt.currentTarget.parentNode.parentNode.classList.remove("used"); 
+            }
+			evt.currentTarget.parentNode.parentNode.childNodes[1].innerHTML = selected ? length : 0;
 			here.updateSelected();
 		},
 		updateSelected: function(){
@@ -120,19 +137,21 @@
 			evt.currentTarget.className = evt.currentTarget.className + " expand";
 		},
 		selectCause: function(evt){
-			this.markCause(evt.currentTarget.parentNode);
+            if(evt.currentTarget.classList.contains("clickedthis")){
+                this.markCause(evt.currentTarget.parentNode);
+            }
 		},
 		unselectCause: function(evt){
-			this.unmarkCause(evt.currentTarget.parentNode);
+            if(evt.currentTarget.classList.contains("clickedthis")){
+                this.unmarkCause(evt.currentTarget.parentNode);
+            }
 		},
 		markCause: function(e){
 			e.classList.remove("unselected");
-			e.className = e.classList.contains("used") ? e.className : e.className + " used";
 			e.className = e.classList.contains("selected") ? e.className : e.className + " selected";
 		},
 		unmarkCause: function(e){
 			e.classList.remove("selected");
-			e.classList.remove("used");
 			e.className = e.classList.contains("unselected") ? e.className : e.className + " unselected";
 		},
 		refreshall: function(){
@@ -210,15 +229,41 @@
 					}
 					url = data.next_page;
 					if (!url){
+                        var index = 0;
 						var causes = [];
+                        var storagelength = storage[0].length;
 						_.each(storage, function(i){
 							causes.push(i.cause); //TODO for every cause - make a list of ticket id's
 						});
 						causes = _.uniq(causes);
+                        var container = new Array();
+                        _.each(causes, function(i){
+                            var tickets = new Array();
+                            var indexed = [];
+                            _.each(storage, function(t){
+                                if (t.cause == i){
+                                    tickets.push(t);
+                                    indexed.push(index);
+                                }
+                                index += 1;
+                            });
+                            container.push({cause: i, suspended: tickets});
+                            indexed.sort(function(a, b){return b-a;});
+                            _.each(indexed, function(i){
+                                storage.splice(i,1);
+                            });
+                        });
+                        console.dir(container);
+                        this.switchTo('suspendtypes', {
+							causes: container,
+							total: data.count
+						});
+                        /*
 						this.switchTo('suspendtypes', {
 							causes: causes,
 							total: data.count
 						});
+                        */
 						return
 					};
 					this.paginateTickets(url, storage);

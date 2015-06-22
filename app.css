@@ -194,7 +194,11 @@ div.causes {
 	text-align: center;
 }
 
-.used .itemcount {
+.used.unselected .itemcount {
+	background: #95BE22;
+	color: #fff;
+}
+.used.selected .itemcount {
 	background: #95BE22;
 	color: #fff;
 }

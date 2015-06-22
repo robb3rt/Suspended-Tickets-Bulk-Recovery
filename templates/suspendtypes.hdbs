@@ -5,25 +5,27 @@
             <td class="causes">
 				<div class="causes">
 					{{#each causes}}
-						<div class="cause">
-							<div class="head item unselected">
-								<span class="itemcount">0</span>
-								<label><input type="checkbox" value="{{.}}"/>{{.}}</label>
-								<span class="unfold expand">+</i>
-							</div>
-							<div class="underlings">
-								<div class="item unselected middle">
-									<label><input type="checkbox" value="{{.}}" />{{.}}</label>
-								</div>
-								<div class="item unselected middle">
-									<label><input type="checkbox" value="{{.}}" />{{.}}</label>
-								</div>
-								<div class="item unselected last">
-									<label><input type="checkbox" value="{{.}}" />{{.}}</label>
-								</div>
-							</div>
-						</div>
-					{{/each}}
+                        <div class="cause">
+                            <div class="head item unselected">
+                                <span class="itemcount">0</span>
+                                <label><input type="checkbox" value="{{cause}}"/>{{cause}}</label>
+                                <span class="unfold expand">+</i>
+                            </div>
+                            <div class="underlings">
+                                {{#each suspended}}
+                                    {{#if @last}}
+                                        <div class="item unselected last">
+                                            <label><input type="checkbox" value="{{id}}" /><span>{{created_at}}</span>{{subject}}</label>
+                                        </div>
+                                    {{else}}
+                                        <div class="item unselected middle">
+                                            <label><input type="checkbox" value="{{id}}" /><span>{{created_at}}</span>{{subject}}</label>
+                                        </div>
+                                    {{/if}}
+                                {{/each}}
+                            </div>
+                        </div>
+                    {{/each}}
 					<br>
 					<button class="btn submit">Recover</button>
 				</div>
