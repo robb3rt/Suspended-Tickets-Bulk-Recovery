@@ -107,7 +107,7 @@ label {
 }
 
 .item.head:hover label {
-	width: 540px;
+	width: 740px;
 }
 
 .item.selected label {
@@ -171,7 +171,7 @@ input[type=checkbox] {
 }
 
 div.causes {
-	width: 600px;
+	width: 800px;
 	margin-left: auto;
 	margin-right: auto;
 	padding: 10px;
@@ -209,6 +209,31 @@ div.causes {
 }
 
 label .suspended.time.parsed{
-	position:absolute;
-	left: 10px;
+	/*position:absolute;
+	left: 10px;*/
+    display:inline;
+    float: left;
+    margin-bottom: 10px;
+    font-size: 10px;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+label .suspended.info.from {
+	/*position:absolute;
+	right: 10px;*/
+    display:inline;
+    float: right;
+    font-weight: bold;
+    font-size: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+label .suspended.info.subject {
+	display:inline;
+    float: none;
+    margin-left: 10px;
+    margin-right: 10px;
+    overflow: hidden;
 }

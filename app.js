@@ -46,27 +46,33 @@
 			'click i.icon-refresh': 'refreshall',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
-			'mouseup .unselected .time.parsed': 'selectCause',
-			'mouseup .selected .time.parsed': 'unselectCause',
+			'mouseup .unselected .suspended.info': 'selectCause',
+			'mouseup .selected .suspended.info': 'unselectCause',
 			'mouseup .unselected label': 'selectCause',
 			'mouseup .selected label': 'unselectCause',
 			'mouseup .unselected .time.parsed': 'selectCause',
 			'mouseup .selected .time.parsed': 'unselectCause',
 			'mouseup .unfold.expand': 'expandCause',
 			'mouseup .unfold.minimize': 'minimizeCause',
+            'mouseenter .item': 'deleteRegister',
+            'mouseleave .item': 'deleteRegister',
+            'mouseenter div': 'deleteRegister',
             'mouseup *': 'deleteRegister',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
         mouseDownRegister: function(evt){
+            evt.preventDefault();
             evt.currentTarget.className = evt.currentTarget.classList.contains("clickedthis") ? evt.currentTarget.className : evt.currentTarget.className + " clickedthis";
         },
         deleteRegister: function(evt){
+            console.dir("I am supposed to delete something now");
             _.each(this.$(".clickedthis"), function(i){
                 i.classList.remove("clickedthis");
             });
         },
 		selectItems: function(evt){
+            console.dir(evt);
 			//look for max amount of input fields
 			if (evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
 				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML) + 1;
@@ -142,15 +148,17 @@
 		},
 		selectCause: function(evt){
             if(evt.currentTarget.classList.contains("clickedthis")){
+                console.dir("contains clickedthis?");
                 this.markCause(evt.currentTarget.parentNode);
-            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.classList.contains("info")){
+            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
+                console.dir("contains suspended");
 				this.markCause(evt.currentTarget.parentNode.parentNode);
 			}
 		},
 		unselectCause: function(evt){
             if(evt.currentTarget.classList.contains("clickedthis")){
                 this.unmarkCause(evt.currentTarget.parentNode);
-            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.classList.contains("info")){
+            } else if (evt.currentTarget.classList.contains("suspended")){
 				this.unmarkCause(evt.currentTarget.parentNode.parentNode);
 			}
 		},
@@ -177,6 +185,9 @@
 			//loop through all suspended tickets and see if the suspended tickets has a cause that matches one of the selected causes.
 		   
 		},
+        formatDates: function(data) {
+            return new Date(data).toLocaleString();
+        },
 		recoverSuspendedTickets: function(causes, url, results){
 			this.ajax('getTickets', url)
 				.done(function(data) {
@@ -245,15 +256,24 @@
 						});
 						causes = _.uniq(causes);
                         var container = new Array();
+                        var here = this;
                         _.each(causes, function(i){
-                            var tickets = new Array();
+                            var tickets = new Array(); //sender - subject - time - timestamp - to - id?
                             var indexed = [];
                             _.each(storage, function(t){
                                 if (t.cause == i){
-                                    tickets.push(t);
+                                    tickets.push({id: t.id, subject: t.subject, received: here.formatDates(t.created_at), created_at: t.created_at, from: t.author.email, to: t.recipient});
                                     indexed.push(index);
                                 }
                                 index += 1;
+                            });
+                            tickets.sort(function(a, b){
+                                var keyA = new Date(a.created_at),
+                                keyB = new Date(b.created_at);
+                                // Compare the 2 dates
+                                if(keyA < keyB) return -1;
+                                if(keyA > keyB) return 1;
+                                return 0;
                             });
                             container.push({cause: i, suspended: tickets});
                             indexed.sort(function(a, b){return b-a;});
