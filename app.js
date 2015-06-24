@@ -55,13 +55,14 @@
 			'mouseup .unfold.expand': 'expandCause',
 			'mouseup .unfold.minimize': 'minimizeCause',
             'mouseleave .clickedthis': 'deleteRegister',
+			'mouseleave .checking': 'deleteChecking',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
         mouseDownRegister: function(evt){
             evt.preventDefault();
             evt.currentTarget.className = evt.currentTarget.classList.contains("clickedthis") ? evt.currentTarget.className : evt.currentTarget.className + " clickedthis";
-            if (evt.shiftKey){ //check if you're pressing shift
+            if (evt.shiftKey && !evt.currentTarget.parentNode.classList.contains("head")){ //check if you're pressing shift
                 if (this.$(".lastselect").length > 0) {
                     var checkboxes = new Array(evt.currentTarget.parentNode.parentNode.getElementsByTagName('input').length);
                     _.each(evt.currentTarget.parentNode.parentNode.getElementsByTagName('input'), function(a, i){
@@ -70,7 +71,6 @@
                             checkboxes.push(a);
                         }
                     });
-                    console.dir(checkboxes);
                     var start = checkboxes.indexOf(evt.currentTarget.childNodes[0]);
                     var end = checkboxes.indexOf(this.$(".lastselect")[0].childNodes[0]);
                     var here = this;
@@ -104,42 +104,43 @@
             });
         },
 		selectItems: function(evt){
-            if (!evt.currentTarget.parentNode.classList.contains("clickedthis") || evt.currentTarget.parentNode.classList.contains("checking")){
-                
+            if (!evt.currentTarget.parentNode.classList.contains("clickedthis")){ //not clicking what you're supposed to?
                 evt.currentTarget.checked = evt.currentTarget.checked ? false : true;
                 return;
             }
             this.deleteRegister(evt);
-			//look for max amount of input fields
-			if (evt.currentTarget.checked){
-				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML, 10) + 1;
-			} else {
-				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML, 10) - 1;
+			if (evt.currentTarget.parentNode.classList.contains("checking")){ //using the multi select feature?
+				evt.currentTarget.checked = evt.currentTarget.parentNode.parentNode.classList.contains("selected") ? true : false;
+				this.deleteChecking();
 			}
+			//look for max amount of input fields
+			var length = 0;
+			var checked = 0;
+			_.each(evt.currentTarget.parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
+				if (i.type == "checkbox"){
+					length += 1;
+					if (i.checked){
+						checked += 1;
+					}
+				}
+			});
+			evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = checked;
 			if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML === "0"){
 				//remove used class, since nothing is selected
 				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
 			} else {
 				//add class saying this is used
-				var here = this;
-				var length = 0;
-				_.each(evt.currentTarget.parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
-					if (i.type == "checkbox"){
-						length += 1;
-					}
-				});
 				if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
 					//add class marking that all items have been selected                   
-                        evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
+                    evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
 					this.markCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				} else {
 					//add class marking that some items have been selected.
                     evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className = evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.contains("used") ? evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className : evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className + " used";
-                evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
+					evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
 					this.unmarkCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				}
 			}
-            this.deleteChecking();
 			//check if selecting or deselecting
 			this.updateSelected();
 		},
@@ -190,13 +191,19 @@
 			evt.currentTarget.className = evt.currentTarget.className + " expand";
 		},
 		selectCause: function(evt){
-            if(evt.currentTarget.classList.contains("clickedthis")){
+			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking")){
+				return;
+			}
+            if (evt.currentTarget.classList.contains("clickedthis")){
                 this.markCause(evt.currentTarget.parentNode);
             } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
 				this.markCause(evt.currentTarget.parentNode.parentNode);
 			}
 		},
 		unselectCause: function(evt){
+			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking")){
+				return;
+			}
             if(evt.currentTarget.classList.contains("clickedthis")){
                 this.unmarkCause(evt.currentTarget.parentNode);
             } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
