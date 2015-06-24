@@ -9,7 +9,7 @@
 					url: url,
 					type: "GET",
 					dataType: "json"
-				}
+				};
 			},
             getSuspendedTickets: function(){
                 return {
@@ -37,7 +37,7 @@
 					url: "/api/v2/suspended_tickets/recover_many.json?ids=" + ids,
 					type: "PUT",
 					dataType: "json"
-				}
+				};
 			}
 		},
 		events: {
@@ -54,32 +54,69 @@
 			'mouseup .selected .time.parsed': 'unselectCause',
 			'mouseup .unfold.expand': 'expandCause',
 			'mouseup .unfold.minimize': 'minimizeCause',
-            'mouseenter .item': 'deleteRegister',
-            'mouseleave .item': 'deleteRegister',
-            'mouseenter div': 'deleteRegister',
-            'mouseup *': 'deleteRegister',
+            'mouseleave .clickedthis': 'deleteRegister',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
         mouseDownRegister: function(evt){
             evt.preventDefault();
             evt.currentTarget.className = evt.currentTarget.classList.contains("clickedthis") ? evt.currentTarget.className : evt.currentTarget.className + " clickedthis";
+            if (evt.shiftKey){ //check if you're pressing shift
+                if (this.$(".lastselect").length > 0) {
+                    var checkboxes = new Array(evt.currentTarget.parentNode.parentNode.getElementsByTagName('input').length);
+                    _.each(evt.currentTarget.parentNode.parentNode.getElementsByTagName('input'), function(a, i){
+                        checkboxes.splice(0, 1);
+                        if (a.type == "checkbox"){
+                            checkboxes.push(a);
+                        }
+                    });
+                    console.dir(checkboxes);
+                    var start = checkboxes.indexOf(evt.currentTarget.childNodes[0]);
+                    var end = checkboxes.indexOf(this.$(".lastselect")[0].childNodes[0]);
+                    var here = this;
+                    _.each(checkboxes.slice(Math.min(start,end), Math.max(start,end) + 1), function(a){
+                        a.parentNode.className = a.parentNode.classList.contains("checking") ? a.parentNode.className : a.parentNode.className + " checking";
+                        if (here.$(".lastselect")[0].childNodes[0].checked){
+                            a.checked = true;
+                            here.markCause(a.parentNode.parentNode);
+                        } else {
+                            a.checked = false;
+                            here.unmarkCause(a.parentNode.parentNode);
+                        }
+                    });
+                }
+            }
+            if (this.$(".lastselect").length > 0) {
+                _.each(this.$(".lastselect"), function(i){
+                    i.classList.remove("lastselect");
+                });
+            }
+            evt.currentTarget.className = evt.currentTarget.classList.contains("lastselect") ? evt.currentTarget.className : evt.currentTarget.className + " lastselect";
         },
         deleteRegister: function(evt){
-            console.dir("I am supposed to delete something now");
             _.each(this.$(".clickedthis"), function(i){
                 i.classList.remove("clickedthis");
             });
         },
+        deleteChecking: function(){
+            _.each(this.$(".checking"), function(i){
+                i.classList.remove("checking");
+            });
+        },
 		selectItems: function(evt){
-            console.dir(evt);
+            if (!evt.currentTarget.parentNode.classList.contains("clickedthis") || evt.currentTarget.parentNode.classList.contains("checking")){
+                
+                evt.currentTarget.checked = evt.currentTarget.checked ? false : true;
+                return;
+            }
+            this.deleteRegister(evt);
 			//look for max amount of input fields
-			if (evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
-				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML) + 1;
+			if (evt.currentTarget.checked){
+				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML, 10) + 1;
 			} else {
-				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML) - 1;
+				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = parseInt(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML, 10) - 1;
 			}
-			if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == 0){
+			if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML === "0"){
 				//remove used class, since nothing is selected
 				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
 			} else {
@@ -92,8 +129,8 @@
 					}
 				});
 				if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
-					//add class marking that all items have been selected.
-					evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
+					//add class marking that all items have been selected                   
+                        evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
 					this.markCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				} else {
 					//add class marking that some items have been selected.
@@ -102,10 +139,16 @@
 					this.unmarkCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				}
 			}
+            this.deleteChecking();
 			//check if selecting or deselecting
 			this.updateSelected();
 		},
 		selectHeads: function(evt){
+            if (!evt.currentTarget.parentNode.classList.contains("clickedthis")){
+                evt.currentTarget.checked = evt.currentTarget.checked ? false : true;
+                return;
+            }
+            this.deleteRegister(evt);
 			var here = this;
 			var length = 0;
 			_.each(evt.currentTarget.parentNode.parentNode.parentNode.childNodes[3].getElementsByTagName('input'), function(i){
@@ -148,17 +191,15 @@
 		},
 		selectCause: function(evt){
             if(evt.currentTarget.classList.contains("clickedthis")){
-                console.dir("contains clickedthis?");
                 this.markCause(evt.currentTarget.parentNode);
             } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
-                console.dir("contains suspended");
 				this.markCause(evt.currentTarget.parentNode.parentNode);
 			}
 		},
 		unselectCause: function(evt){
             if(evt.currentTarget.classList.contains("clickedthis")){
                 this.unmarkCause(evt.currentTarget.parentNode);
-            } else if (evt.currentTarget.classList.contains("suspended")){
+            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
 				this.unmarkCause(evt.currentTarget.parentNode.parentNode);
 			}
 		},
@@ -182,8 +223,7 @@
 			});
 			this.recoverSuspendedTickets(recover, "/api/v2/suspended_tickets.json", "");
 			//create another function that picks up the  suspended tickets a new. also push the list of causes that are to be recovered.
-			//loop through all suspended tickets and see if the suspended tickets has a cause that matches one of the selected causes.
-		   
+			//loop through all suspended tickets and see if the suspended tickets has a cause that matches one of the selected causes 
 		},
         formatDates: function(data) {
             return new Date(data).toLocaleString();
@@ -216,7 +256,7 @@
 						var here = this;
 						_.each(ids, function(id){here.ajax('recoverSuspendedTicket', id);});
 						this.paginateTickets("/api/v2/suspended_tickets.json", "");
-						return
+						return;
 						//TODO:
 						//see if possible to turn off triggers that send email notifications.
 						
@@ -226,7 +266,7 @@
 							this.paginateTickets("/api/v2/suspended_tickets.json", "");
 							return;
 						});*/
-					};
+					}
 					this.recoverSuspendedTickets(causes, url, storage);
 				});
 		},
@@ -255,12 +295,13 @@
 							causes.push(i.cause); //TODO for every cause - make a list of ticket id's
 						});
 						causes = _.uniq(causes);
-                        var container = new Array();
+                        var container = new Array(causes.length);
                         var here = this;
                         _.each(causes, function(i){
-                            var tickets = new Array(); //sender - subject - time - timestamp - to - id?
+                            var tickets = new Array(storage.length); //sender - subject - time - timestamp - to - id?
                             var indexed = [];
                             _.each(storage, function(t){
+                                tickets.splice(0,1);
                                 if (t.cause == i){
                                     tickets.push({id: t.id, subject: t.subject, received: here.formatDates(t.created_at), created_at: t.created_at, from: t.author.email, to: t.recipient});
                                     indexed.push(index);
@@ -275,25 +316,19 @@
                                 if(keyA > keyB) return 1;
                                 return 0;
                             });
+                            container.splice(0,1);
                             container.push({cause: i, suspended: tickets});
                             indexed.sort(function(a, b){return b-a;});
                             _.each(indexed, function(i){
                                 storage.splice(i,1);
                             });
                         });
-                        console.dir(container);
                         this.switchTo('suspendtypes', {
 							causes: container,
 							total: data.count
 						});
-                        /*
-						this.switchTo('suspendtypes', {
-							causes: causes,
-							total: data.count
-						});
-                        */
-						return
-					};
+						return;
+					}
 					this.paginateTickets(url, storage);
 				});
 		},
