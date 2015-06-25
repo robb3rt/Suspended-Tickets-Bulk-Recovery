@@ -194,6 +194,44 @@ div.causes {
 	text-align: center;
 }
 
+.filter {
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	padding:5px;
+	display:inline-block;
+	vertical-align: middle;
+	font-size: 12px;
+	text-align: center;
+}
+
+.setup.filter {
+    display: inline-table;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    margin: 10px 0px;
+    padding: 10px;
+    background: #eee;
+	color: #000;
+}
+.added * {
+    width: auto !important;
+    padding: 5px;
+}
+
+.used.filter {
+    cursor: pointer;
+    background: #95BE22;
+	color: #fff;
+}
+
+
+.unused.filter {
+    cursor: pointer;
+    background: #eee;
+	color: #000;
+}
+
 .used.unselected .itemcount {
 	background: #95BE22;
 	color: #fff;

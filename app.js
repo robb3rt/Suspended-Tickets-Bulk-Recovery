@@ -46,6 +46,9 @@
 			'click i.icon-refresh': 'refreshall',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
+            'mousedown .filter.unused': 'createFilter',
+            'mousedown .filter.used': 'createFilter',
+            //'mouseleave .infos': 'leaveFilter',
 			'mouseup .unselected .suspended.info': 'selectCause',
 			'mouseup .selected .suspended.info': 'unselectCause',
 			'mouseup .unselected label': 'selectCause',
@@ -59,6 +62,48 @@
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
+        createFilter: function(evt){
+            evt.currentTarget.className = evt.currentTarget.classList.contains("setup") ? evt.currentTarget.className : evt.currentTarget.className + " setup";
+            evt.currentTarget.classList.remove("unused");
+            evt.currentTarget.classList.remove("used");
+            if(evt.currentTarget.classList.contains("date")) {
+            } else if (evt.currentTarget.classList.contains("subject")) {
+                if (evt.currentTarget.childNodes.length > 1){
+                    if (evt.currentTarget.childNodes[1].classList.contains("added")){
+                        evt.currentTarget.childNodes[1].style.display = "inline";
+                        evt.currentTarget.childNodes[0].style.display = "none";
+                    }
+                } else {
+                    this.SubjectFilter(evt.currentTarget);
+                }
+            } else if (evt.currentTarget.classList.contains("email")) {
+            }
+        },
+        SubjectFilter: function(e){
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
+            e.childNodes[0].style.display = "none";
+        },
+        leaveFilter: function(evt){
+            var used = false;
+            _.each(this.$(".filter.setup"), function(i){
+                i.classList.remove("setup");
+                if (i.getElementsByTagName('input').length > 0){
+                    _.each(i.getElementsByTagName('input'), function(a){
+                        if (a.value){
+                            used = true;
+                        }
+                    });
+                }
+                i.className = used ? i.className + " used" : i.className + " unused";
+                used = false;
+            });
+            _.each(this.$(".added"), function(i){
+                i.style.display = "none";
+            });
+            _.each(this.$(".original"), function(i){
+                i.style.display = "inline";
+            });
+        },
         mouseDownRegister: function(evt){
             evt.preventDefault();
             evt.currentTarget.className = evt.currentTarget.classList.contains("clickedthis") ? evt.currentTarget.className : evt.currentTarget.className + " clickedthis";

@@ -36,7 +36,7 @@
 					<h2 class="infoheader">Some infos</h2><br>
 					<p class="totals">You can recover <b>{{total}}</b> suspended tickets in total.</p><br>
 					<p class="selected">You have selected <b><span id="selected">0</span></b> suspended tickets to be recovered.</p><br>
-					<p class="totals">You can filter here by <b>subject</b>, <b>date</b> or <b>email address</b>.</p><br>
+					<p class="totals">You can filter here by <span class="filter date unused">date</span>, <span class="filter subject unused">subject</span> or <span class="filter email unused">email address</span></p><br>
 					<p class="totals">You have filtered <b>0</b> suspended tickets.</p><br>
 				</div>
             </td>
