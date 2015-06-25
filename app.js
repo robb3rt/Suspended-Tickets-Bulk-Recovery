@@ -48,7 +48,7 @@
             'mousedown .selected label': 'mouseDownRegister',
             'mousedown .filter.unused': 'createFilter',
             'mousedown .filter.used': 'createFilter',
-            //'mouseleave .infos': 'leaveFilter',
+            'mouseleave .infos': 'leaveFilter',
 			'mouseup .unselected .suspended.info': 'selectCause',
 			'mouseup .selected .suspended.info': 'unselectCause',
 			'mouseup .unselected label': 'selectCause',
@@ -66,22 +66,35 @@
             evt.currentTarget.className = evt.currentTarget.classList.contains("setup") ? evt.currentTarget.className : evt.currentTarget.className + " setup";
             evt.currentTarget.classList.remove("unused");
             evt.currentTarget.classList.remove("used");
-            if(evt.currentTarget.classList.contains("date")) {
-            } else if (evt.currentTarget.classList.contains("subject")) {
+            if (evt.currentTarget.classList.contains("subject") || evt.currentTarget.classList.contains("email") || evt.currentTarget.classList.contains("date")) {
                 if (evt.currentTarget.childNodes.length > 1){
                     if (evt.currentTarget.childNodes[1].classList.contains("added")){
-                        evt.currentTarget.childNodes[1].style.display = "inline";
+                        evt.currentTarget.childNodes[1].style.display = "flex";
                         evt.currentTarget.childNodes[0].style.display = "none";
                     }
                 } else {
-                    this.SubjectFilter(evt.currentTarget);
+					if (evt.currentTarget.classList.contains("subject")){
+						this.SubjectFilter(evt.currentTarget);
+					} else if (evt.currentTarget.classList.contains("email")) {
+						this.EmailFilter(evt.currentTarget);
+					} else if (evt.currentTarget.classList.contains("date")) {
+						this.DateFilter(evt.currentTarget);
+					}
                 }
-            } else if (evt.currentTarget.classList.contains("email")) {
             }
         },
         SubjectFilter: function(e){
             e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
             e.childNodes[0].style.display = "none";
+        },
+		EmailFilter: function(e){
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Email" placeholder="Filter email addresses"></span>';
+            e.childNodes[0].style.display = "none";
+        },
+		DateFilter: function(e){
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right start_date" type="date" name="start_date"></span>';
+            e.childNodes[0].style.display = "none";
+			this.$('.start_date').datepicker({ dateFormat: "yy-mm-dd" })
         },
         leaveFilter: function(evt){
             var used = false;

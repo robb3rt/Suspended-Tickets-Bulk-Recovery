@@ -199,13 +199,11 @@ div.causes {
 	border-radius: 4px;
 	padding:5px;
 	display:inline-block;
-	vertical-align: middle;
 	font-size: 12px;
 	text-align: center;
 }
 
 .setup.filter {
-    display: inline-table;
     width: 100%;
     box-sizing: border-box;
     text-align: left;
@@ -214,9 +212,19 @@ div.causes {
     background: #eee;
 	color: #000;
 }
-.added * {
-    width: auto !important;
-    padding: 5px;
+
+.added {
+	display: flex;
+}
+
+.added .left {
+	width: auto;
+	float: left;
+	margin-right: 10px;
+}
+
+.added .right {
+	width: 100%;
 }
 
 .used.filter {
