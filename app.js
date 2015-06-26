@@ -48,7 +48,7 @@
             'mousedown .selected label': 'mouseDownRegister',
             'mousedown .filter.unused': 'createFilter',
             'mousedown .filter.used': 'createFilter',
-            'mouseleave .infos': 'leaveFilter',
+            'mouseup *': 'leaveFilter',
 			'mouseup .unselected .suspended.info': 'selectCause',
 			'mouseup .selected .suspended.info': 'unselectCause',
 			'mouseup .unselected label': 'selectCause',
@@ -92,30 +92,8 @@
             e.childNodes[0].style.display = "none";
         },
 		DateFilter: function(e){
-            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right start_date" type="date" name="start_date"></span>';
-            e.childNodes[0].style.display = "none";
-			this.$('.start_date').datepicker({ dateFormat: "yy-mm-dd" })
         },
         leaveFilter: function(evt){
-            var used = false;
-            _.each(this.$(".filter.setup"), function(i){
-                i.classList.remove("setup");
-                if (i.getElementsByTagName('input').length > 0){
-                    _.each(i.getElementsByTagName('input'), function(a){
-                        if (a.value){
-                            used = true;
-                        }
-                    });
-                }
-                i.className = used ? i.className + " used" : i.className + " unused";
-                used = false;
-            });
-            _.each(this.$(".added"), function(i){
-                i.style.display = "none";
-            });
-            _.each(this.$(".original"), function(i){
-                i.style.display = "inline";
-            });
         },
         mouseDownRegister: function(evt){
             evt.preventDefault();

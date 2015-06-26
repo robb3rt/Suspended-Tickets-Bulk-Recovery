@@ -217,6 +217,28 @@ div.causes {
 	display: flex;
 }
 
+.filter.date.setup {
+    display: block;
+}
+
+.date.added {
+	display: table-row;
+    margin: 5px 0px;
+}
+
+.date .added .left {
+    display: inline-block;
+	width: auto;
+	float: left;
+	margin-right: 10px;
+}
+
+.date .added .right {
+    display: inline-block;
+	width: 200px;
+    float: right;
+}
+
 .added .left {
 	width: auto;
 	float: left;
