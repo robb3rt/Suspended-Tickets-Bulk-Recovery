@@ -68,10 +68,12 @@
             evt.currentTarget.classList.remove("used");
             if (evt.currentTarget.classList.contains("subject") || evt.currentTarget.classList.contains("email") || evt.currentTarget.classList.contains("date")) {
                 if (evt.currentTarget.childNodes.length > 1){
-                    if (evt.currentTarget.childNodes[1].classList.contains("added")){
-                        evt.currentTarget.childNodes[1].style.display = "flex";
-                        evt.currentTarget.childNodes[0].style.display = "none";
-                    }
+                    _.each(evt.currentTarget.childNodes, function(i){
+                        if (i.classList.contains("added")){
+                            i.style.display = "";
+                        }
+                    });
+                    evt.currentTarget.childNodes[0].style.display = "none";
                 } else {
 					if (evt.currentTarget.classList.contains("subject")){
 						this.SubjectFilter(evt.currentTarget);
@@ -92,8 +94,35 @@
             e.childNodes[0].style.display = "none";
         },
 		DateFilter: function(e){
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added date"><span class="left">Start ' + e.innerHTML + ': </span><input class="right start_date" name="start_date"></span><span class="added date"><span class="left">End ' + e.innerHTML + ': </span><input class="right end_date" name="end_date"></span></span>';
+            e.childNodes[0].style.display = "none"; 
+			this.$('.start_date').datepicker({ dateFormat: "dd-mm-yy" });
+            this.$('.end_date').datepicker({ dateFormat: "dd-mm-yy" });
+            //this.$('.end_date').datepicker('setDate', new Date());
         },
         leaveFilter: function(evt){
+            var container = this.$(".infos");
+            if (!container.is(evt.target) && container.has(evt.target).length === 0){
+                var used = false;
+                _.each(this.$(".filter.setup"), function(i){
+                    i.classList.remove("setup");
+                    if (i.getElementsByTagName('input').length > 0){
+                        _.each(i.getElementsByTagName('input'), function(a){
+                            if (a.value){
+                                used = true;
+                            }
+                        });
+                    }
+                    i.className = used ? i.className + " used" : i.className + " unused";
+                    used = false;
+                });
+                _.each(this.$(".added"), function(i){
+                    i.style.display = "none";
+                });
+                _.each(this.$(".original"), function(i){
+                    i.style.display = "inline";
+                });
+            }
         },
         mouseDownRegister: function(evt){
             evt.preventDefault();
