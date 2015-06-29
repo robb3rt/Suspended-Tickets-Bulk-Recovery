@@ -46,8 +46,11 @@
 			'click i.icon-refresh': 'refreshall',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
+            'mousedown .added.empty': 'emptyFilter',
             'mousedown .filter.unused': 'createFilter',
             'mousedown .filter.used': 'createFilter',
+            'mousedown .filter.used .original': 'createFilter',
+            'mouseup .filter': 'createdFilter',
             'mouseup *': 'leaveFilter',
 			'mouseup .unselected .suspended.info': 'selectCause',
 			'mouseup .selected .suspended.info': 'unselectCause',
@@ -62,7 +65,21 @@
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
+        createdFilter: function(evt){
+            _.each(this.$(".emptying"), function(i){
+                i.classList.remove("emptying");
+            });
+        },
+        emptyFilter: function(evt){
+            evt.preventDefault();
+            evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.classList.contains("emptying") ? evt.currentTarget.parentNode.className : evt.currentTarget.parentNode.className + " emptying";
+            console.dir(evt.currentTarget);
+        },
         createFilter: function(evt){
+            console.dir(evt.currentTarget);
+            if(evt.currentTarget.classList.contains("emptying") && ( evt.currentTarget.classList.contains(".filter") && evt.currentTarget.childElementCount > 0)){
+                return;
+            }
             evt.currentTarget.className = evt.currentTarget.classList.contains("setup") ? evt.currentTarget.className : evt.currentTarget.className + " setup";
             evt.currentTarget.classList.remove("unused");
             evt.currentTarget.classList.remove("used");
@@ -86,15 +103,15 @@
             }
         },
         SubjectFilter: function(e){
-            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
             e.childNodes[0].style.display = "none";
         },
 		EmailFilter: function(e){
-            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Email" placeholder="Filter email addresses"></span>';
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Email" placeholder="Filter email addresses"></span>';
             e.childNodes[0].style.display = "none";
         },
 		DateFilter: function(e){
-            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added date"><span class="left">Start ' + e.innerHTML + ': </span><input class="right start_date" name="start_date"></span><span class="added date"><span class="left">End ' + e.innerHTML + ': </span><input class="right end_date" name="end_date"></span></span>';
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added date"><span class="left">Start ' + e.innerHTML + ': </span><input class="right start_date" name="start_date"></span><span class="added date"><span class="left">End ' + e.innerHTML + ': </span><input class="right end_date" name="end_date"></span></span>';
             e.childNodes[0].style.display = "none"; 
 			this.$('.start_date').datepicker({ dateFormat: "dd-mm-yy" });
             this.$('.end_date').datepicker({ dateFormat: "dd-mm-yy" });
@@ -117,7 +134,7 @@
                     used = false;
                 });
                 _.each(this.$(".added"), function(i){
-                    i.style.display = "none";
+                    i.style.display = i.classList.contains("empty") ? "" : "none";
                 });
                 _.each(this.$(".original"), function(i){
                     i.style.display = "inline";
@@ -364,13 +381,13 @@
 						var causes = [];
                         var storagelength = storage[0].length;
 						_.each(storage, function(i){
-							causes.push(i.cause); //TODO for every cause - make a list of ticket id's
+							causes.push(i.cause);
 						});
 						causes = _.uniq(causes);
                         var container = new Array(causes.length);
                         var here = this;
                         _.each(causes, function(i){
-                            var tickets = new Array(storage.length); //sender - subject - time - timestamp - to - id?
+                            var tickets = new Array(storage.length);
                             var indexed = [];
                             _.each(storage, function(t){
                                 tickets.splice(0,1);

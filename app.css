@@ -217,6 +217,22 @@ div.causes {
 	display: flex;
 }
 
+.filter .added.empty {
+    display: none;
+}
+
+.filter.used .added.empty {
+    display: inline;
+}
+
+.empty {
+    color: #777;
+}
+
+.empty:hover {
+    color: #333;
+}
+
 .filter.date.setup {
     display: block;
 }
