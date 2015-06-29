@@ -50,8 +50,8 @@
             'mousedown .filter.unused': 'createFilter',
             'mousedown .filter.used': 'createFilter',
             'mousedown .filter.used .original': 'createFilter',
-            'mouseup .filter': 'createdFilter',
-            'mouseup *': 'leaveFilter',
+			'mouseleave .empty': 'createdFilter',
+            'mouseup': 'leaveFilter',
 			'mouseup .unselected .suspended.info': 'selectCause',
 			'mouseup .selected .suspended.info': 'unselectCause',
 			'mouseup .unselected label': 'selectCause',
@@ -66,18 +66,19 @@
 			'change .head input[type=checkbox]': 'selectHeads'
 		},
         createdFilter: function(evt){
-            _.each(this.$(".emptying"), function(i){
-                i.classList.remove("emptying");
-            });
+			evt.currentTarget.parentNode.classList.remove("emptying");
         },
         emptyFilter: function(evt){
             evt.preventDefault();
             evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.classList.contains("emptying") ? evt.currentTarget.parentNode.className : evt.currentTarget.parentNode.className + " emptying";
-            console.dir(evt.currentTarget);
+            _.each(evt.currentTarget.parentNode.getElementsByTagName('input'), function(i){
+                i.value = "";
+            });
+			evt.currentTarget.parentNode.classList.remove("used");
+			evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.classList.contains("unused") ? evt.currentTarget.parentNode.className : evt.currentTarget.parentNode.className + " unused";
         },
         createFilter: function(evt){
-            console.dir(evt.currentTarget);
-            if(evt.currentTarget.classList.contains("emptying") && ( evt.currentTarget.classList.contains(".filter") && evt.currentTarget.childElementCount > 0)){
+            if(evt.currentTarget.classList.contains("emptying") || evt.currentTarget.parentNode.classList.contains("emptying")){
                 return;
             }
             evt.currentTarget.className = evt.currentTarget.classList.contains("setup") ? evt.currentTarget.className : evt.currentTarget.className + " setup";
@@ -103,11 +104,11 @@
             }
         },
         SubjectFilter: function(e){
-            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added subject"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
             e.childNodes[0].style.display = "none";
         },
 		EmailFilter: function(e){
-            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Email" placeholder="Filter email addresses"></span>';
+            e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added email"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Email" placeholder="Filter email addresses"></span>';
             e.childNodes[0].style.display = "none";
         },
 		DateFilter: function(e){
@@ -121,24 +122,32 @@
             var container = this.$(".infos");
             if (!container.is(evt.target) && container.has(evt.target).length === 0){
                 var used = false;
+				var startdate, enddate, subject, email;
                 _.each(this.$(".filter.setup"), function(i){
                     i.classList.remove("setup");
                     if (i.getElementsByTagName('input').length > 0){
                         _.each(i.getElementsByTagName('input'), function(a){
                             if (a.value){
                                 used = true;
+								startdate = startdate ? startdate : (a.parentNode.classList.contains("date") ? (a.classList.contains("start_date") ? a.value : undefined) : undefined);
+								enddate = enddate ? enddate : (a.parentNode.classList.contains("date") ? (a.classList.contains("end_date") ? a.value : undefined) : undefined);
+								subject = subject ? subject : (a.parentNode.classList.contains("subject") ? a.value : "");
+								email = email ? email : (a.parentNode.classList.contains("email") ? a.value : "");
                             }
                         });
                     }
                     i.className = used ? i.className + " used" : i.className + " unused";
                     used = false;
                 });
+				console.dir(startdate);
                 _.each(this.$(".added"), function(i){
                     i.style.display = i.classList.contains("empty") ? "" : "none";
                 });
                 _.each(this.$(".original"), function(i){
                     i.style.display = "inline";
                 });
+				//TODO get the values and filter the results.
+				
             }
         },
         mouseDownRegister: function(evt){

@@ -1,3 +1,7 @@
+table.content, #mainsection {
+	height: 100%;
+}
+
 .btn:hover {
     background-color: #FBFBFB;
     border-color: #CCC;
@@ -226,11 +230,11 @@ div.causes {
 }
 
 .empty {
-    color: #777;
+    color: #888;
 }
 
 .empty:hover {
-    color: #333;
+    color: #000;
 }
 
 .filter.date.setup {
