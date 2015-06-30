@@ -50,6 +50,10 @@ button {
     box-shadow: none;
 }
 
+.item.subjectfilter, .item.datefilter, .item.emailfilter{
+    display:none;
+}
+
 label {
 	padding: 10px;
 }

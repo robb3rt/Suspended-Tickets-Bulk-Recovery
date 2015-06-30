@@ -76,6 +76,21 @@
             });
 			evt.currentTarget.parentNode.classList.remove("used");
 			evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.classList.contains("unused") ? evt.currentTarget.parentNode.className : evt.currentTarget.parentNode.className + " unused";
+            if(evt.currentTarget.parentNode.classList.contains("subject")){
+                _.each(this.$(".subjectfilter"),function(i){
+                    i.classList.remove("subjectfilter");
+                });
+            }
+            if(evt.currentTarget.parentNode.classList.contains("date")){
+                _.each(this.$(".datefilter"),function(i){
+                    i.classList.remove("datefilter");
+                });
+            }
+            if(evt.currentTarget.parentNode.classList.contains("email")){
+                _.each(this.$(".emailfiler"),function(i){
+                    i.classList.remove("emailfilter");
+                });
+            }
         },
         createFilter: function(evt){
             if(evt.currentTarget.classList.contains("emptying") || evt.currentTarget.parentNode.classList.contains("emptying")){
@@ -123,6 +138,9 @@
             if (!container.is(evt.target) && container.has(evt.target).length === 0){
                 var used = false;
 				var startdate, enddate, subject, email;
+                if (!this.$(".filter.setup").length){
+                    return;
+                }
                 _.each(this.$(".filter.setup"), function(i){
                     i.classList.remove("setup");
                     if (i.getElementsByTagName('input').length > 0){
@@ -137,17 +155,44 @@
                         });
                     }
                     i.className = used ? i.className + " used" : i.className + " unused";
+                    if(i.classList.contains("subject") && !used){
+                        _.each(this.$(".subjectfilter"),function(i){
+                            i.classList.remove("subjectfilter");
+                        });
+                        return;
+                    }
+                    if(i.classList.contains("date") && !used){
+                        _.each(this.$(".datefilter"),function(i){
+                            i.classList.remove("datefilter");
+                        });
+                        return;
+                    }
+                    if(i.classList.contains("email") && !used){
+                        _.each(this.$(".emailfiler"),function(i){
+                            i.classList.remove("emailfilter");
+                        });
+                        return;
+                    }
                     used = false;
                 });
-				console.dir(startdate);
+				//TODO get all viable checkboxes and filter them down.
+                _.each(this.$(".underlings"), function(i){
+                    _.each(i.childNodes, function(a){
+                        if (a.nodeName == "DIV" && !a.classList.contains("selected")){
+                            _.each(a.getElementsByTagName("span"), function(b){
+                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? a.className : a.className + " subjectfilter") : a.className) : a.className;
+                            });
+                        }
+                    });
+                });
+                //END TODO
+                
                 _.each(this.$(".added"), function(i){
                     i.style.display = i.classList.contains("empty") ? "" : "none";
                 });
                 _.each(this.$(".original"), function(i){
                     i.style.display = "inline";
                 });
-				//TODO get the values and filter the results.
-				
             }
         },
         mouseDownRegister: function(evt){
@@ -268,6 +313,8 @@
 			this.$('#selected')[0].innerHTML = this.$('.underlings input[type=checkbox]:checked').length;
 		},
 		expandCause: function(evt){
+            //TODO: console.dir(this.$(evt.currentTarget.parentNode).find('.item'));
+            //console.dir(this.$(evt.currentTarget.parentNode).find(':div:visible'));
 			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "inline";
 			evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.className + " first";
 			evt.currentTarget.innerHTML = "-";
