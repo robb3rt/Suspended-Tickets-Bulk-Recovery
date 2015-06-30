@@ -80,6 +80,9 @@
                 _.each(this.$(".subjectfilter"),function(i){
                     i.classList.remove("subjectfilter");
                 });
+				_.each(this.$(".subjectresult"),function(i){
+                    i.classList.remove("subjectresult");
+                });
             }
             if(evt.currentTarget.parentNode.classList.contains("date")){
                 _.each(this.$(".datefilter"),function(i){
@@ -91,6 +94,14 @@
                     i.classList.remove("emailfilter");
                 });
             }
+			_.each(this.$(".middle.last"), function(i){
+					i.classList.remove("last");
+            });
+			_.each(this.$(".underlings"), function(i){
+				if(this.$(i).children(":visible:last").length > 0){
+					i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("first") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " first";
+				}
+			});
         },
         createFilter: function(evt){
             if(evt.currentTarget.classList.contains("emptying") || evt.currentTarget.parentNode.classList.contains("emptying")){
@@ -175,18 +186,22 @@
                     }
                     used = false;
                 });
-				//TODO get all viable checkboxes and filter them down.
                 _.each(this.$(".underlings"), function(i){
                     _.each(i.childNodes, function(a){
                         if (a.nodeName == "DIV" && !a.classList.contains("selected")){
                             _.each(a.getElementsByTagName("span"), function(b){
-                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? a.className : a.className + " subjectfilter") : a.className) : a.className;
+                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("subjectresult") ? a.className : a.className + " subjectresult") : (a.classList.contains("subjectfilter") ? a.className : a.className + " subjectfilter")) : a.className) : a.className;
                             });
                         }
                     });
-                });
-                //END TODO
-                
+					if(this.$(i).children(":visible:last").length > 0){
+						last = this.$(i).children(":visible:last")[0];
+						last.className = last.classList.contains("last") ? last.className : last.className + " last";
+					} else {
+						i.parentNode.childNodes[1].classList.remove("first");
+						//TODO check for results here
+					}
+				});
                 _.each(this.$(".added"), function(i){
                     i.style.display = i.classList.contains("empty") ? "" : "none";
                 });
@@ -288,6 +303,7 @@
             this.deleteRegister(evt);
 			var here = this;
 			var length = 0;
+			//TODO: check if filters are active. if so, rewrite this thing.
 			_.each(evt.currentTarget.parentNode.parentNode.parentNode.childNodes[3].getElementsByTagName('input'), function(i){
 				if (i.type == "checkbox"){
 					length += 1;
@@ -313,10 +329,10 @@
 			this.$('#selected')[0].innerHTML = this.$('.underlings input[type=checkbox]:checked').length;
 		},
 		expandCause: function(evt){
-            //TODO: console.dir(this.$(evt.currentTarget.parentNode).find('.item'));
-            //console.dir(this.$(evt.currentTarget.parentNode).find(':div:visible'));
 			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "inline";
-			evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.className + " first";
+			if (this.$(evt.currentTarget.parentNode.parentNode.childNodes[3]).children(":visible:last").length > 0){
+				evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.className + " first";
+			}
 			evt.currentTarget.innerHTML = "-";
 			evt.currentTarget.classList.remove("expand");
 			evt.currentTarget.className = evt.currentTarget.className + " minimize";

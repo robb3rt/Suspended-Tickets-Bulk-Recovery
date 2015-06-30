@@ -82,6 +82,11 @@ label {
 	border-bottom-right-radius: 0px;
 }
 
+.head.item.noresults {
+	background: #eee;
+	color: #000;
+}
+
 .item.middle {
 	border: none;
 	border-top: 1px solid #DDD;
@@ -301,8 +306,6 @@ div.causes {
 }
 
 label .suspended.time.parsed{
-	/*position:absolute;
-	left: 10px;*/
     display:inline;
     float: left;
     margin-bottom: 10px;
@@ -312,8 +315,6 @@ label .suspended.time.parsed{
 }
 
 label .suspended.info.from {
-	/*position:absolute;
-	right: 10px;*/
     display:inline;
     float: right;
     font-weight: bold;
