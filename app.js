@@ -105,6 +105,15 @@
 					i.classList.remove("last");
             });
 			_.each(this.$(".underlings"), function(i){
+				if(this.$(i).children(".result.selected").length < this.$(i).children(".result").length || i.parentNode.childNodes[1].classList.contains("noresults")){
+					i.parentNode.childNodes[1].classList.remove("selected");
+					i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("unselected") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " unselected";
+					this.$(i.parentNode.childNodes[1]).find("input").checked = false;
+				} else {
+					i.parentNode.childNodes[1].classList.remove("unselected");
+					i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("selected") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " selected";
+					this.$(i.parentNode.childNodes[1]).find("input").checked = true;
+				}
 				if(this.$(i).children(":visible:last").length > 0){
 					i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("first") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " first";
 				}
@@ -112,6 +121,7 @@
                     i.parentNode.childNodes[1].classList.remove("noresults");
                 }
 			});
+			this.updateFiltered();
         },
         createFilter: function(evt){
             if(evt.currentTarget.classList.contains("emptying") || evt.currentTarget.parentNode.classList.contains("emptying")){
@@ -196,12 +206,15 @@
                     }
                     used = false;
                 });
+				_.each(this.$(".last"), function(i){
+                    i.classList.remove("last");
+                });
                 _.each(this.$(".underlings"), function(i){
                     _.each(i.childNodes, function(a){
                         if (a.nodeName == "DIV" && !a.classList.contains("selected")){
                             _.each(a.getElementsByTagName("span"), function(b){
-                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("result") ? a.className : a.className + " result") : (a.classList.contains("subjectfilter") ? a.className : a.className.replace(/(?:^|\s)result(?!\S)/, '') + " subjectfilter")) : a.className) : a.className;
-                                a.className = (b.classList.contains("mail") && b.classList.contains("info")) ? (email ? ( ~b.innerHTML.toLowerCase().indexOf(email.toLowerCase()) ? (a.classList.contains("result") ? a.className : a.className + " result") : (a.classList.contains("emailfilter") ? a.className : a.className.replace(/(?:^|\s)result(?!\S)/, '') + " emailfilter")) : a.className) : a.className;
+                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("subjectfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " subjectfilter")) : a.className) : a.className;
+                                a.className = (b.classList.contains("mail") && b.classList.contains("info")) ? (email ? ( ~b.innerHTML.toLowerCase().indexOf(email.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("emailfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " emailfilter")) : a.className) : a.className;
                             });
                         }
                     });
@@ -210,8 +223,6 @@
 						last.className = last.classList.contains("last") ? last.className : last.className + " last";
 					} else {
 						i.parentNode.childNodes[1].classList.remove("first");
-						//TODO check for results here
-                        //TODO create function to check if you are filtering for each filter option.
                         if (this.$(i).children(".result").length === 0){
                             i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("noresults") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " noresults";
                         }
@@ -223,6 +234,7 @@
                 _.each(this.$(".original"), function(i){
                     i.style.display = "inline";
                 });
+				this.updateFiltered();
             }
         },
         mouseDownRegister: function(evt){
@@ -283,7 +295,7 @@
 			var length = 0;
 			var checked = 0;
 			_.each(evt.currentTarget.parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
-				if (i.type == "checkbox"){
+				if (i.type == "checkbox" && i.parentNode.parentNode.classList.contains("result")){
 					length += 1;
 					if (i.checked){
 						checked += 1;
@@ -297,7 +309,7 @@
 			} else {
 				//add class saying this is used
 				if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
-					//add class marking that all items have been selected                   
+					//add class marking that all items have been selected
                     evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
 					this.markCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				} else {
@@ -311,6 +323,13 @@
 			this.updateSelected();
 		},
 		selectHeads: function(evt){
+			if(evt.currentTarget.parentNode.parentNode.classList.contains("noresults")){
+				evt.currentTarget.parentNode.parentNode.classList.remove("selected");
+				evt.currentTarget.parentNode.parentNode.classList.remove("unselected");
+				evt.currentTarget.parentNode.parentNode.className = evt.currentTarget.parentNode.parentNode.className + " unselected";
+				evt.currentTarget.checked = false;
+				return;
+			}
             if (!evt.currentTarget.parentNode.classList.contains("clickedthis")){
                 evt.currentTarget.checked = evt.currentTarget.checked ? false : true;
                 return;
@@ -318,17 +337,18 @@
             this.deleteRegister(evt);
 			var here = this;
 			var length = 0;
-			//TODO: check if filters are active. if so, rewrite this thing.
 			_.each(evt.currentTarget.parentNode.parentNode.parentNode.childNodes[3].getElementsByTagName('input'), function(i){
-				if (i.type == "checkbox"){
-					length += 1;
-				}
-				if (i.type == "checkbox" && evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
-					i.checked = true;
-					here.markCause(i.parentNode.parentNode);
-				} else {
-					i.checked = false;
-					here.unmarkCause(i.parentNode.parentNode);
+				if (i.parentNode.parentNode.classList.contains("result")){
+					if (i.type == "checkbox"){
+						length += 1;
+					}
+					if (i.type == "checkbox" && evt.currentTarget.parentNode.parentNode.classList.contains("selected")){
+						i.checked = true;
+						here.markCause(i.parentNode.parentNode);
+					} else {
+						i.checked = false;
+						here.unmarkCause(i.parentNode.parentNode);
+					}
 				}
 			});
             var selected = evt.currentTarget.parentNode.parentNode.classList.contains("selected");
@@ -342,6 +362,9 @@
 		},
 		updateSelected: function(){
 			this.$('#selected')[0].innerHTML = this.$('.underlings input[type=checkbox]:checked').length;
+		},
+		updateFiltered: function(){
+			this.$('#filtered')[0].innerHTML = this.$('.result').length;
 		},
 		expandCause: function(evt){
 			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "inline";
