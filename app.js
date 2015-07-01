@@ -79,19 +79,26 @@
             if(evt.currentTarget.parentNode.classList.contains("subject")){
                 _.each(this.$(".subjectfilter"),function(i){
                     i.classList.remove("subjectfilter");
-                });
-				_.each(this.$(".subjectresult"),function(i){
-                    i.classList.remove("subjectresult");
+                    if (!i.classList.contains("emailfilter") && !i.classList.contains("datefilter") && !i.classList.contains("result")){
+                        i.className = i.className + " result";
+                    }
+                    
                 });
             }
             if(evt.currentTarget.parentNode.classList.contains("date")){
                 _.each(this.$(".datefilter"),function(i){
                     i.classList.remove("datefilter");
+                    if (!i.classList.contains("emailfilter") && !i.classList.contains("subjectfilter") && !i.classList.contains("result")){
+                        i.className = i.className + " result";
+                    }
                 });
             }
             if(evt.currentTarget.parentNode.classList.contains("email")){
-                _.each(this.$(".emailfiler"),function(i){
+                _.each(this.$(".emailfilter"),function(i){
                     i.classList.remove("emailfilter");
+                    if (!i.classList.contains("subjectfilter") && !i.classList.contains("datefilter") && !i.classList.contains("result")){
+                        i.className = i.className + " result";
+                    }
                 });
             }
 			_.each(this.$(".middle.last"), function(i){
@@ -101,6 +108,9 @@
 				if(this.$(i).children(":visible:last").length > 0){
 					i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("first") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " first";
 				}
+                if(this.$(i).children(".result:last").length > 0){
+                    i.parentNode.childNodes[1].classList.remove("noresults");
+                }
 			});
         },
         createFilter: function(evt){
@@ -190,16 +200,21 @@
                     _.each(i.childNodes, function(a){
                         if (a.nodeName == "DIV" && !a.classList.contains("selected")){
                             _.each(a.getElementsByTagName("span"), function(b){
-                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("subjectresult") ? a.className : a.className + " subjectresult") : (a.classList.contains("subjectfilter") ? a.className : a.className + " subjectfilter")) : a.className) : a.className;
+                                a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("result") ? a.className : a.className + " result") : (a.classList.contains("subjectfilter") ? a.className : a.className.replace(/(?:^|\s)result(?!\S)/, '') + " subjectfilter")) : a.className) : a.className;
+                                a.className = (b.classList.contains("mail") && b.classList.contains("info")) ? (email ? ( ~b.innerHTML.toLowerCase().indexOf(email.toLowerCase()) ? (a.classList.contains("result") ? a.className : a.className + " result") : (a.classList.contains("emailfilter") ? a.className : a.className.replace(/(?:^|\s)result(?!\S)/, '') + " emailfilter")) : a.className) : a.className;
                             });
                         }
                     });
-					if(this.$(i).children(":visible:last").length > 0){
-						last = this.$(i).children(":visible:last")[0];
+					if(this.$(i).children(".result:last").length > 0){
+						last = this.$(i).children(".result:last")[0];
 						last.className = last.classList.contains("last") ? last.className : last.className + " last";
 					} else {
 						i.parentNode.childNodes[1].classList.remove("first");
 						//TODO check for results here
+                        //TODO create function to check if you are filtering for each filter option.
+                        if (this.$(i).children(".result").length === 0){
+                            i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("noresults") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " noresults";
+                        }
 					}
 				});
                 _.each(this.$(".added"), function(i){
@@ -330,9 +345,7 @@
 		},
 		expandCause: function(evt){
 			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "inline";
-			if (this.$(evt.currentTarget.parentNode.parentNode.childNodes[3]).children(":visible:last").length > 0){
-				evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.className + " first";
-			}
+            evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.className + " first";
 			evt.currentTarget.innerHTML = "-";
 			evt.currentTarget.classList.remove("expand");
 			evt.currentTarget.className = evt.currentTarget.className + " minimize";
