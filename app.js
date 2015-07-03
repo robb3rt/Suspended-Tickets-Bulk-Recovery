@@ -119,6 +119,8 @@
 				}
                 if(this.$(i).children(".result:last").length > 0){
                     i.parentNode.childNodes[1].classList.remove("noresults");
+                    var last = this.$(i).children(".result:last")[0];
+                    last.className = last.classList.contains("last") ? last.className : last.className + " last";
                 }
 			});
 			this.updateFiltered();
@@ -148,6 +150,7 @@
 					}
                 }
             }
+            this.$(evt.currentTarget).find("input[type=text]:visible:enabled:first").focus();
         },
         SubjectFilter: function(e){
             e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added subject"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
@@ -160,13 +163,14 @@
 		DateFilter: function(e){
             e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added date"><span class="left">Start ' + e.innerHTML + ': </span><input class="right start_date" name="start_date"></span><span class="added date"><span class="left">End ' + e.innerHTML + ': </span><input class="right end_date" name="end_date"></span></span>';
             e.childNodes[0].style.display = "none"; 
-			this.$('.start_date').datepicker({ dateFormat: "dd-mm-yy" });
-            this.$('.end_date').datepicker({ dateFormat: "dd-mm-yy" });
+			this.$('.start_date').datepicker({ dateFormat: "yy-mm-dd" });
+            this.$('.end_date').datepicker({ dateFormat: "yy-mm-dd" });
             //this.$('.end_date').datepicker('setDate', new Date());
         },
         leaveFilter: function(evt){
             var container = this.$(".infos");
             if (!container.is(evt.target) && container.has(evt.target).length === 0){
+                var here = this;
                 var used = false;
 				var startdate, enddate, subject, email;
                 if (!this.$(".filter.setup").length){
@@ -206,20 +210,27 @@
                     }
                     used = false;
                 });
-				_.each(this.$(".last"), function(i){
+				_.each(this.$(".middle.last"), function(i){
                     i.classList.remove("last");
                 });
                 _.each(this.$(".underlings"), function(i){
                     _.each(i.childNodes, function(a){
                         if (a.nodeName == "DIV" && !a.classList.contains("selected")){
                             _.each(a.getElementsByTagName("span"), function(b){
+                                //get date and compare to both start and end dates.
+                                if (b.classList.contains("time")){
+                                    var thisdatestring = here.returnDate(b.getAttribute("timestamp"));
+                                    var startdatestring = here.returnDate(startdate);
+                                    var enddatestring = here.returnDate(enddate);
+                                    console.dir(startdatestring);
+                                }
                                 a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("subjectfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " subjectfilter")) : a.className) : a.className;
                                 a.className = (b.classList.contains("mail") && b.classList.contains("info")) ? (email ? ( ~b.innerHTML.toLowerCase().indexOf(email.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("emailfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " emailfilter")) : a.className) : a.className;
                             });
                         }
                     });
 					if(this.$(i).children(".result:last").length > 0){
-						last = this.$(i).children(".result:last")[0];
+						var last = this.$(i).children(".result:last")[0];
 						last.className = last.classList.contains("last") ? last.className : last.className + " last";
 					} else {
 						i.parentNode.childNodes[1].classList.remove("first");
@@ -227,6 +238,15 @@
                             i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("noresults") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " noresults";
                         }
 					}
+                    if(this.$(i).children(".result.selected").length < this.$(i).children(".result").length || i.parentNode.childNodes[1].classList.contains("noresults")){
+                        i.parentNode.childNodes[1].classList.remove("selected");
+                        i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("unselected") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " unselected";
+                        this.$(i.parentNode.childNodes[1]).find("input").checked = false;
+                    } else {
+                        i.parentNode.childNodes[1].classList.remove("unselected");
+                        i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("selected") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " selected";
+                        this.$(i.parentNode.childNodes[1]).find("input").checked = true;
+                    }
 				});
                 _.each(this.$(".added"), function(i){
                     i.style.display = i.classList.contains("empty") ? "" : "none";
@@ -423,7 +443,15 @@
 			//loop through all suspended tickets and see if the suspended tickets has a cause that matches one of the selected causes 
 		},
         formatDates: function(data) {
-            return new Date(data).toLocaleString();
+            return new Date(data);
+        },
+        returnDate: function(date) {
+            var date = new Date(date);
+            var day = date.getDate();
+            var month = date.getMonth();
+            var year = date.getFullYear();
+            return new Date(year, month, day);
+            
         },
 		recoverSuspendedTickets: function(causes, url, results){
 			this.ajax('getTickets', url)
@@ -500,7 +528,7 @@
                             _.each(storage, function(t){
                                 tickets.splice(0,1);
                                 if (t.cause == i){
-                                    tickets.push({id: t.id, subject: t.subject, received: here.formatDates(t.created_at), created_at: t.created_at, from: t.author.email, to: t.recipient});
+                                    tickets.push({id: t.id, subject: t.subject, received: moment(here.formatDates(t.created_at)).calendar(), created_at: t.created_at, from: t.author.email, to: t.recipient});
                                     indexed.push(index);
                                 }
                                 index += 1;

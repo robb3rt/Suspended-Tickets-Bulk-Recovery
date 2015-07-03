@@ -55,7 +55,11 @@ button {
 }
 
 label {
-	padding: 10px;
+    overflow: hidden;
+}
+
+.head label {
+    padding: 10px;
 }
 
 .item.unselected {
@@ -316,27 +320,25 @@ div.causes {
 }
 
 label .suspended.time.parsed{
-    display:inline;
+    display: block;
     float: left;
     margin-bottom: 10px;
     font-size: 10px;
-    margin-right: 10px;
+    margin: 10px;
     font-weight: bold;
 }
 
 label .suspended.info.from {
-    display:inline;
+    display: block;
     float: right;
     font-weight: bold;
     font-size: 10px;
-    margin-left: 10px;
-    margin-top: 10px;
+    margin: 10px;
 }
 
 label .suspended.info.subject {
-	display:inline;
+	display: inline-block;
     float: none;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin: 10px;
     overflow: hidden;
 }
