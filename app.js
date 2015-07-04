@@ -44,6 +44,8 @@
 			'app.activated':'doSomething',
 			'click button.submit': 'submitForm',
 			'click i.icon-refresh': 'refreshall',
+			'click i.icon-arrow-down': 'scrollDown',
+			'click i.icon-arrow-up': 'scrollUp',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
             'mousedown .added.empty': 'emptyFilter',
@@ -64,6 +66,12 @@
 			'mouseleave .checking': 'deleteChecking',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
+		},
+		scrollDown: function(evt){
+			this.$("#mainsection").context.scrollTop = this.$("#mainsection").context.scrollHeight;
+		},
+		scrollUp: function(evt){
+			this.$("#mainsection").context.scrollTop = 0;
 		},
         createdFilter: function(evt){
 			evt.currentTarget.parentNode.classList.remove("emptying");
@@ -182,8 +190,8 @@
                         _.each(i.getElementsByTagName('input'), function(a){
                             if (a.value){
                                 used = true;
-								startdate = startdate ? startdate : (a.parentNode.classList.contains("date") ? (a.classList.contains("start_date") ? a.value : undefined) : undefined);
-								enddate = enddate ? enddate : (a.parentNode.classList.contains("date") ? (a.classList.contains("end_date") ? a.value : undefined) : undefined);
+								startdate = startdate ? startdate : (a.parentNode.classList.contains("date") ? (a.classList.contains("start_date") ? a.value : "") : "");
+								enddate = enddate ? enddate : (a.parentNode.classList.contains("date") ? (a.classList.contains("end_date") ? a.value : "") : "");
 								subject = subject ? subject : (a.parentNode.classList.contains("subject") ? a.value : "");
 								email = email ? email : (a.parentNode.classList.contains("email") ? a.value : "");
                             }
@@ -220,10 +228,12 @@
                                 //get date and compare to both start and end dates.
                                 if (b.classList.contains("time")){
                                     var thisdatestring = here.returnDate(b.getAttribute("timestamp"));
-                                    var startdatestring = here.returnDate(startdate);
-                                    var enddatestring = here.returnDate(enddate);
-                                    console.dir(startdatestring);
+                                    var startdatestring = startdate ? here.returnDate(startdate) : "";
+                                    var enddatestring = enddate ? here.returnDate(enddate) : "";
+									var todatestring = here.returnDate(new Date());
+									var beginningstring = new Date(2007);
                                 }
+								a.className = (b.classList.contains("time") && b.classList.contains("info")) ? (startdate || enddate ? (startdate && enddate ? (startdatestring <= thisdatestring && thisdatestring <= enddatestring ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("datefilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " datefilter")) : (startdate ? (startdatestring <= thisdatestring && thisdatestring <= todatestring ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("datefilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " datefilter")) : (beginningstring <= thisdatestring && thisdatestring <= enddatestring ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("datefilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " datefilter")))) : a.className) : a.className;
                                 a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("subjectfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " subjectfilter")) : a.className) : a.className;
                                 a.className = (b.classList.contains("mail") && b.classList.contains("info")) ? (email ? ( ~b.innerHTML.toLowerCase().indexOf(email.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("emailfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " emailfilter")) : a.className) : a.className;
                             });
@@ -536,7 +546,6 @@
                             tickets.sort(function(a, b){
                                 var keyA = new Date(a.created_at),
                                 keyB = new Date(b.created_at);
-                                // Compare the 2 dates
                                 if(keyA < keyB) return -1;
                                 if(keyA > keyB) return 1;
                                 return 0;
@@ -558,7 +567,6 @@
 				});
 		},
 		doSomething: function() {
-			//get suspended tickets.
 			this.paginateTickets("/api/v2/suspended_tickets.json", "");
 		}
 	};
