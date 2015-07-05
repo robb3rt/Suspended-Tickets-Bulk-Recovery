@@ -46,6 +46,7 @@
 			'click i.icon-refresh': 'refreshall',
 			'click i.icon-arrow-down': 'scrollDown',
 			'click i.icon-arrow-up': 'scrollUp',
+			'blur .lastselected input[type=text].right:visible:enabled': 'reFocus',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
             'mousedown .added.empty': 'emptyFilter',
@@ -63,9 +64,18 @@
 			'mouseup .unfold.expand': 'expandCause',
 			'mouseup .unfold.minimize': 'minimizeCause',
             'mouseleave .clickedthis': 'deleteRegister',
+			'mouseup .clickedthis': 'deleteRegister2',
 			'mouseleave .checking': 'deleteChecking',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads'
+		},
+		reFocus: function(evt){
+			evt.currentTarget.focus();
+			if (this.$(".lastselected").length > 0) {
+				_.each(this.$(".lastselected"), function(i){
+					i.classList.remove("lastselected");
+				});
+			}
 		},
 		scrollDown: function(evt){
 			this.$("#mainsection").context.scrollTop = this.$("#mainsection").context.scrollHeight;
@@ -141,6 +151,12 @@
             evt.currentTarget.classList.remove("unused");
             evt.currentTarget.classList.remove("used");
             if (evt.currentTarget.classList.contains("subject") || evt.currentTarget.classList.contains("email") || evt.currentTarget.classList.contains("date")) {
+				if (this.$(".lastselected").length > 0) {
+					_.each(this.$(".lastselected"), function(i){
+						i.classList.remove("lastselected");
+					});
+				}
+				evt.currentTarget.className = evt.currentTarget.className + " lastselected";
                 if (evt.currentTarget.childNodes.length > 1){
                     _.each(evt.currentTarget.childNodes, function(i){
                         if (i.classList.contains("added")){
@@ -157,8 +173,8 @@
 						this.DateFilter(evt.currentTarget);
 					}
                 }
+				this.$(evt.currentTarget).find("input[type=text].right:visible:enabled:first").focus();
             }
-            this.$(evt.currentTarget).find("input[type=text]:visible:enabled:first").focus();
         },
         SubjectFilter: function(e){
             e.innerHTML = '<span class="original">' + e.innerHTML + '</span><span class="added empty"> &#10005;</span><span class="added subject"><span class="left">' + e.innerHTML + ': </span><input class="right" type="text" name="Subject" placeholder="Filter for subject"></span>';
@@ -269,6 +285,9 @@
         },
         mouseDownRegister: function(evt){
             evt.preventDefault();
+			if (evt.which == 3){
+				return;
+			}
             evt.currentTarget.className = evt.currentTarget.classList.contains("clickedthis") ? evt.currentTarget.className : evt.currentTarget.className + " clickedthis";
             if (evt.shiftKey && !evt.currentTarget.parentNode.classList.contains("head")){ //check if you're pressing shift
                 if (this.$(".lastselect").length > 0) {
@@ -301,7 +320,14 @@
             }
             evt.currentTarget.className = evt.currentTarget.classList.contains("lastselect") ? evt.currentTarget.className : evt.currentTarget.className + " lastselect";
         },
-        deleteRegister: function(evt){
+        deleteRegister2: function(evt){
+			if (evt.which == 3){
+				_.each(this.$(".clickedthis"), function(i){
+					i.classList.remove("clickedthis");
+				});
+			}
+		},
+		deleteRegister: function(evt){
             _.each(this.$(".clickedthis"), function(i){
                 i.classList.remove("clickedthis");
             });
@@ -410,8 +436,14 @@
 			evt.currentTarget.classList.remove("minimize");
 			evt.currentTarget.className = evt.currentTarget.className + " expand";
 		},
+		rightClick: function(e){
+			console.dir(e);
+		},
 		selectCause: function(evt){
-			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking")){
+			if (evt.which == 3){
+				this.rightClick(evt.currentTarget);
+			}
+			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking") || evt.which == 3){
 				return;
 			}
             if (evt.currentTarget.classList.contains("clickedthis")){
@@ -421,7 +453,10 @@
 			}
 		},
 		unselectCause: function(evt){
-			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking")){
+			if (evt.which == 3){
+				this.rightClick(evt.currentTarget);
+			}
+			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking") || evt.which == 3){
 				return;
 			}
             if(evt.currentTarget.classList.contains("clickedthis")){
@@ -561,6 +596,7 @@
 							causes: container,
 							total: data.count
 						});
+						this.updateFiltered();
 						return;
 					}
 					this.paginateTickets(url, storage);
