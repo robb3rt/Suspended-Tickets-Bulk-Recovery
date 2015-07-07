@@ -67,7 +67,9 @@
 			'mouseup .clickedthis': 'deleteRegister2',
 			'mouseleave .checking': 'deleteChecking',
 			'change .underlings input[type=checkbox]':'selectItems',
-			'change .head input[type=checkbox]': 'selectHeads'
+			'change .head input[type=checkbox]': 'selectHeads',
+			'mouseup .checking': 'multiSelect',
+			'mouseleave .checking': 'multiSelect',
 		},
 		reFocus: function(evt){
 			evt.currentTarget.focus();
@@ -311,6 +313,7 @@
                             here.unmarkCause(a.parentNode.parentNode);
                         }
                     });
+					this.updateSelected();
                 }
             }
             if (this.$(".lastselect").length > 0) {
@@ -327,7 +330,7 @@
 				});
 			}
 		},
-		deleteRegister: function(evt){
+		deleteRegister: function(){
             _.each(this.$(".clickedthis"), function(i){
                 i.classList.remove("clickedthis");
             });
@@ -337,20 +340,26 @@
                 i.classList.remove("checking");
             });
         },
-		selectItems: function(evt){
-            if (!evt.currentTarget.parentNode.classList.contains("clickedthis")){ //not clicking what you're supposed to?
-                evt.currentTarget.checked = evt.currentTarget.checked ? false : true;
+		selectItem: function(label, origin){
+			if (!label.classList.contains("clickedthis")){ //not clicking what you're supposed to?
+                label.childNodes[0].checked = label.childNodes[0].checked ? false : true;
                 return;
             }
-            this.deleteRegister(evt);
-			if (evt.currentTarget.parentNode.classList.contains("checking")){ //using the multi select feature?
-				evt.currentTarget.checked = evt.currentTarget.parentNode.parentNode.classList.contains("selected") ? true : false;
-				this.deleteChecking();
+			this.deleteRegister();
+			//using multiselect feature?
+			if (label.classList.contains("checking") && origin){
+				label.childNodes[0].checked = label.childNodes[0].parentNode.parentNode.classList.contains("selected") ? true : false;
+			}
+			this.deleteChecking();
+			if (!label.childNodes[0].checked){
+				this.unmarkCause(label.parentNode);
+			} else {
+				this.markCause(label.parentNode);
 			}
 			//look for max amount of input fields
 			var length = 0;
 			var checked = 0;
-			_.each(evt.currentTarget.parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
+			_.each(label.childNodes[0].parentNode.parentNode.parentNode.getElementsByTagName('input'), function(i){
 				if (i.type == "checkbox" && i.parentNode.parentNode.classList.contains("result")){
 					length += 1;
 					if (i.checked){
@@ -358,25 +367,31 @@
 					}
 				}
 			});
-			evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = checked;
-			if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML === "0"){
+			label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = checked;
+			if (label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML === "0"){
 				//remove used class, since nothing is selected
-				evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
+				label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
 			} else {
 				//add class saying this is used
-				if (evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
+				if (label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
 					//add class marking that all items have been selected
-                    evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
-					this.markCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
+                    label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
+					this.markCause(label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				} else {
 					//add class marking that some items have been selected.
-                    evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className = evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.contains("used") ? evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className : evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].className + " used";
-					evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
-					this.unmarkCause(evt.currentTarget.parentNode.parentNode.parentNode.parentNode.childNodes[1]);
+                    label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].className = label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.contains("used") ? label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].className : label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].className + " used";
+					label.parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = false;
+					this.unmarkCause(label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1]);
 				}
 			}
 			//check if selecting or deselecting
 			this.updateSelected();
+		},
+		multiSelect: function(evt){
+			this.selectItem(evt.currentTarget, false);
+		},
+		selectItems: function(evt){
+			this.selectItem(evt.currentTarget.parentNode, true);
 		},
 		selectHeads: function(evt){
 			if(evt.currentTarget.parentNode.parentNode.classList.contains("noresults")){
@@ -390,7 +405,12 @@
                 evt.currentTarget.checked = evt.currentTarget.checked ? false : true;
                 return;
             }
-            this.deleteRegister(evt);
+            this.deleteRegister();
+			if (!evt.currentTarget.checked){
+				this.unmarkCause(evt.currentTarget.parentNode.parentNode);
+			} else {
+				this.markCause(evt.currentTarget.parentNode.parentNode);
+			}
 			var here = this;
 			var length = 0;
 			_.each(evt.currentTarget.parentNode.parentNode.parentNode.childNodes[3].getElementsByTagName('input'), function(i){
@@ -443,6 +463,7 @@
 			if (evt.which == 3){
 				this.rightClick(evt.currentTarget);
 			}
+			/*
 			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking") || evt.which == 3){
 				return;
 			}
@@ -450,12 +471,13 @@
                 this.markCause(evt.currentTarget.parentNode);
             } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
 				this.markCause(evt.currentTarget.parentNode.parentNode);
-			}
+			}*/
 		},
 		unselectCause: function(evt){
 			if (evt.which == 3){
 				this.rightClick(evt.currentTarget);
 			}
+			/*
 			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking") || evt.which == 3){
 				return;
 			}
@@ -463,7 +485,7 @@
                 this.unmarkCause(evt.currentTarget.parentNode);
             } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
 				this.unmarkCause(evt.currentTarget.parentNode.parentNode);
-			}
+			}*/
 		},
 		markCause: function(e){
 			e.classList.remove("unselected");
