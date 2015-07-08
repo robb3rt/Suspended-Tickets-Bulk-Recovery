@@ -1,13 +1,21 @@
 {
-  "name": "Suspended Ticket Bulk Recovery",
-  "author": {
-    "name": "Robbert Hink",
-    "email": "rhink@zendesk.com",
-    "url": "http://robberthink.com"
-  },
-  "defaultLocale": "en",
-  "private": true,
-  "location": "nav_bar",
-  "version": "1.0",
-  "frameworkVersion": "1.0"
+	"name": "Suspended Ticket Bulk Recovery",
+	"author": {
+		"name": "Robbert Hink",
+		"email": "rhink@zendesk.com",
+		"url": "http://robberthink.com"
+	},
+	"defaultLocale": "en",
+	"private": true,
+	"location": "nav_bar",
+	"version": "1.0",
+	"frameworkVersion": "1.0",
+	"parameters": [
+		{
+			"name": "API calls per minute",
+			"type": "number",
+			"default": "50",
+			"required": true
+		}
+	]
 }

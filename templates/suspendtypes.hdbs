@@ -34,9 +34,10 @@
             </td>
             <td id="helper">
 				<div class="infos">
-					<i class="icon-refresh icon-2x"></i>
-					<i class="icon-arrow-down icon-2x"></i>
-					<i class="icon-arrow-up icon-2x"></i>
+					<span class="icon" id="clearfilters" style="display:none">&#10005;</span>
+					<i class="icon-refresh icon"></i>
+					<i class="icon-arrow-down icon"></i>
+					<i class="icon-arrow-up icon"></i>
 					<h2 class="infoheader">Some infos</h2><br>
 					<p class="totals">You can recover <b>{{total}}</b> suspended tickets in total.</p><br>
 					<p class="selected">You have selected <b><span id="selected">0</span></b> suspended tickets to be recovered.</p><br>

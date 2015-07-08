@@ -159,8 +159,6 @@
                 return;
             }
             evt.currentTarget.className = evt.currentTarget.classList.contains("setup") ? evt.currentTarget.className : evt.currentTarget.className + " setup";
-            evt.currentTarget.classList.remove("unused");
-            evt.currentTarget.classList.remove("used");
             if (evt.currentTarget.classList.contains("subject") || evt.currentTarget.classList.contains("email") || evt.currentTarget.classList.contains("date")) {
 				if (this.$(".lastselected").length > 0) {
 					_.each(this.$(".lastselected"), function(i){
@@ -224,7 +222,7 @@
                             }
                         });
                     }
-                    i.className = used ? i.className + " used" : i.className + " unused";
+                    i.className = used ? (i.classList.contains("used") ? i.className : i.className.replace( /(^|\s)unused(?!\S)/ , "") + " used") : i.className;
                     if(i.classList.contains("subject") && !used){
                         _.each(this.$(".subjectfilter"),function(i){
                             i.classList.remove("subjectfilter");
@@ -450,6 +448,11 @@
 		},
 		updateFiltered: function(){
 			this.$('#filtered')[0].innerHTML = this.$('.result').length;
+			if(this.$('.filter.used').length > 0) {
+				this.$("#clearfilters")[0].style.display = "inline-block";
+			} else {
+				this.$("#clearfilters")[0].style.display = "none";
+			}
 		},
 		expandCause: function(evt){
 			evt.currentTarget.parentNode.parentNode.childNodes[3].style.display = "inline";
@@ -494,30 +497,47 @@
 			//find out which causes are selected.
 			var recover = [];
             var here = this;
+			var ms = 1200;
+			var offset = 0;
 			this.$('.result input[type="checkbox"]:checked').each(function(){
 				recover.push(this.value);
 			});
+			console.dir(this.setting("API calls per minute"));
             if (evt.currentTarget.classList.contains("manually") && evt.currentTarget.classList.contains("recover")){
-                _.each(recover, function(id){here.ajax('recoverSuspendedTicket', id);});
+                _.each(recover, function(id, index) {
+					setTimeout(function () {
+						console.dir(index);
+						here.ajax('recoverSuspendedTicket', id);
+					}, ms + offset);
+					offset += ms;
+				});
+				here.paginateTickets("/api/v2/suspended_tickets.json", "");
+				return;
             } else if (evt.currentTarget.classList.contains("automatically") && evt.currentTarget.classList.contains("recover") || evt.currentTarget.classList.contains("delete")){
+				var many = new Array(0);
                 //get recover array and distribute it in arrays of 100 items each.
                 var i,j,temparray,chunk = 100;
                 for (i=0,j=recover.length; i<j; i+=chunk) {
-                    temparray = recover.slice(i,i+chunk);
-                    if (evt.currentTarget.classList.contains("automatically") && evt.currentTarget.classList.contains("recover")){
-                        this.ajax('recoverMany', temparray).done(function(data) {
-							this.paginateTickets("/api/v2/suspended_tickets.json", "");
-							return;
-						});
-                    } else {
-                        this.ajax('deleteMany', temparray).done(function(data) {
-							this.paginateTickets("/api/v2/suspended_tickets.json", "");
-							return;
-						});
-                    }
+					many.push(recover.slice(i,i+chunk));
                 }
+				_.each(many, function(ids, index) {
+					setTimeout(function () {
+						console.dir(index);
+						if (evt.currentTarget.classList.contains("automatically") && evt.currentTarget.classList.contains("recover")){
+							here.ajax('recoverMany', ids).done(function(data) {
+								here.paginateTickets("/api/v2/suspended_tickets.json", "");
+								return;
+							});
+						} else {
+							here.ajax('deleteMany', ids).done(function(data) {
+								here.paginateTickets("/api/v2/suspended_tickets.json", "");
+								return;
+							});
+						}
+					}, ms + offset);
+					offset += ms;
+				});
             }
-			//this.recoverSuspendedTickets(recover, "/api/v2/suspended_tickets.json", "");
 		},
         formatDates: function(data) {
             return new Date(data);
@@ -530,48 +550,6 @@
             return new Date(year, month, day);
             
         },
-		recoverSuspendedTickets: function(causes, url, results){
-			this.ajax('getTickets', url)
-				.done(function(data) {
-					var storage = new Array(0);
-					storage.push.apply(storage, data.suspended_tickets);
-					if (url == "/api/v2/suspended_tickets.json"){
-						if (data.count === 0){
-							this.switchTo('suspendtypes', {
-								causes: causes,
-								total: data.count
-							});
-							return;
-						}
-					} else {
-						storage.push.apply(storage, results);
-					}
-					url = data.next_page;
-					if (!url){
-						var ids = [];
-						_.each(storage, function(i){
-							if (_.contains(causes, i.cause)){
-								ids.push(i.id);
-							}
-						});
-						//TODO Add some timeout
-						var here = this;
-						_.each(ids, function(id){here.ajax('recoverSuspendedTicket', id);});
-						this.paginateTickets("/api/v2/suspended_tickets.json", "");
-						return;
-						//TODO:
-						//see if possible to turn off triggers that send email notifications.
-						
-						/**** Updatemany should only be used
-						**** when the cause of suspension is not "received from support address" *****
-						this.ajax('recoverMany', ids).done(function(data) {
-							this.paginateTickets("/api/v2/suspended_tickets.json", "");
-							return;
-						});*/
-					}
-					this.recoverSuspendedTickets(causes, url, storage);
-				});
-		},
 		paginateTickets: function(url, results){
 			this.ajax('getTickets', url)
 				.done(function(data) {

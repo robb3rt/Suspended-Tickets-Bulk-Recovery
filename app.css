@@ -161,21 +161,17 @@ width: 400px;
     width:100%;
 }
 
-.icon-refresh {
-    cursor: pointer;
-    position: absolute;
-    right: 20px;
-}
-.icon-arrow-down {
-    cursor: pointer;
-    position: absolute;
-    right: 40px;
+#clearfilters {
+	color: black;
+	font-weight: bolder;
 }
 
-.icon-arrow-up {
-    cursor: pointer;
-    position: absolute;
-    right: 60px;
+.icon {
+	cursor: pointer;
+	position: relative;
+	width: 20px;
+	float: right;
+	display: inline-block;
 }
 
 .selected .unfold:hover {
@@ -258,6 +254,10 @@ div.causes {
 
 .filter .added.empty {
     display: none;
+}
+
+.filter.setup.used .added.empty {
+	display: none;
 }
 
 .filter.used .added.empty {
