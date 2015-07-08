@@ -38,11 +38,20 @@
 					type: "PUT",
 					dataType: "json"
 				};
+			},
+            deleteMany: function(ids){
+				return {
+					url: "/api/v2/suspended_tickets/destroy_many.json?ids=" + ids,
+					type: "DELETE",
+					dataType: "json"
+				};
 			}
 		},
 		events: {
 			'app.activated':'doSomething',
-			'click button.submit': 'submitForm',
+			'click button.submit.recover.manually': 'submitForm',
+            'click button.submit.recover.automatically': 'submitForm',
+            'click button.submit.delete': 'submitForm',
 			'click i.icon-refresh': 'refreshall',
 			'click i.icon-arrow-down': 'scrollDown',
 			'click i.icon-arrow-up': 'scrollUp',
@@ -463,29 +472,11 @@
 			if (evt.which == 3){
 				this.rightClick(evt.currentTarget);
 			}
-			/*
-			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking") || evt.which == 3){
-				return;
-			}
-            if (evt.currentTarget.classList.contains("clickedthis")){
-                this.markCause(evt.currentTarget.parentNode);
-            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
-				this.markCause(evt.currentTarget.parentNode.parentNode);
-			}*/
 		},
 		unselectCause: function(evt){
 			if (evt.which == 3){
 				this.rightClick(evt.currentTarget);
 			}
-			/*
-			if (evt.currentTarget.parentNode.classList.contains("checking") || evt.currentTarget.classList.contains("checking") || evt.which == 3){
-				return;
-			}
-            if(evt.currentTarget.classList.contains("clickedthis")){
-                this.unmarkCause(evt.currentTarget.parentNode);
-            } else if (evt.currentTarget.classList.contains("suspended") && evt.currentTarget.parentNode.classList.contains("clickedthis")){
-				this.unmarkCause(evt.currentTarget.parentNode.parentNode);
-			}*/
 		},
 		markCause: function(e){
 			e.classList.remove("unselected");
@@ -499,15 +490,34 @@
 			this.switchTo('loading');
 			this.paginateTickets("/api/v2/suspended_tickets.json", "");
 		},
-		submitForm: function(){
+		submitForm: function(evt){
 			//find out which causes are selected.
 			var recover = [];
-			this.$('input[type="checkbox"]:checked').each(function(){
+            var here = this;
+			this.$('.result input[type="checkbox"]:checked').each(function(){
 				recover.push(this.value);
 			});
-			this.recoverSuspendedTickets(recover, "/api/v2/suspended_tickets.json", "");
-			//create another function that picks up the  suspended tickets a new. also push the list of causes that are to be recovered.
-			//loop through all suspended tickets and see if the suspended tickets has a cause that matches one of the selected causes 
+            if (evt.currentTarget.classList.contains("manually") && evt.currentTarget.classList.contains("recover")){
+                _.each(recover, function(id){here.ajax('recoverSuspendedTicket', id);});
+            } else if (evt.currentTarget.classList.contains("automatically") && evt.currentTarget.classList.contains("recover") || evt.currentTarget.classList.contains("delete")){
+                //get recover array and distribute it in arrays of 100 items each.
+                var i,j,temparray,chunk = 100;
+                for (i=0,j=recover.length; i<j; i+=chunk) {
+                    temparray = recover.slice(i,i+chunk);
+                    if (evt.currentTarget.classList.contains("automatically") && evt.currentTarget.classList.contains("recover")){
+                        this.ajax('recoverMany', temparray).done(function(data) {
+							this.paginateTickets("/api/v2/suspended_tickets.json", "");
+							return;
+						});
+                    } else {
+                        this.ajax('deleteMany', temparray).done(function(data) {
+							this.paginateTickets("/api/v2/suspended_tickets.json", "");
+							return;
+						});
+                    }
+                }
+            }
+			//this.recoverSuspendedTickets(recover, "/api/v2/suspended_tickets.json", "");
 		},
         formatDates: function(data) {
             return new Date(data);

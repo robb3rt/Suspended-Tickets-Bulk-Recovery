@@ -27,7 +27,9 @@
                         </div>
                     {{/each}}
 					<br>
-					<button class="btn submit">Recover</button>
+					<button class="btn submit recover manually">Recover Manually</button>
+                    <button class="btn submit recover automatically">Recover Automatically</button>
+                    <button class="btn submit delete">Delete</button>
 				</div>
             </td>
             <td id="helper">
