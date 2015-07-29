@@ -354,3 +354,36 @@ label .suspended.info.subject {
     margin: 10px;
     overflow: hidden;
 }
+
+.infos span.info {
+    border: 1px solid #ccc;
+	border-radius: 4px;
+	padding:5px 8px;
+	vertical-align: middle;
+	position: relative;
+	font-size: 12px;
+	text-align: center;
+}
+
+.confirmation {
+    text-align: center;
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.confirmation h1 {
+    margin: 20px 0px;
+}
+
+.confirmation p {
+    padding: 20px;
+    text-align: justify;
+}
+
+.confirmation button {
+    margin: 10px;
+}
+.warning.red {
+    color:red;
+}

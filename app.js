@@ -1,8 +1,7 @@
 (function() {
 
 	return {
-		defaultState: 'loading',
-		
+		defaultState: 'confirmation',
 		requests: {
 			getTickets: function(url){
 				return {
@@ -48,14 +47,15 @@
 			}
 		},
 		events: {
-			'app.activated':'doSomething',
 			'click button.submit.recover.manually': 'submitForm',
             'click button.submit.recover.automatically': 'submitForm',
             'click button.submit.delete': 'submitForm',
+            'click #clearfilters': 'emptyAllFilters',
 			'click i.icon-refresh': 'refreshall',
 			'click i.icon-arrow-down': 'scrollDown',
 			'click i.icon-arrow-up': 'scrollUp',
 			'blur .lastselected input[type=text].right:visible:enabled': 'reFocus',
+            'mousedown #confirmuse': 'manageSuspendedTickets',
             'mousedown .unselected label': 'mouseDownRegister',
             'mousedown .selected label': 'mouseDownRegister',
             'mousedown .added.empty': 'emptyFilter',
@@ -74,7 +74,6 @@
 			'mouseup .unfold.minimize': 'minimizeCause',
             'mouseleave .clickedthis': 'deleteRegister',
 			'mouseup .clickedthis': 'deleteRegister2',
-			'mouseleave .checking': 'deleteChecking',
 			'change .underlings input[type=checkbox]':'selectItems',
 			'change .head input[type=checkbox]': 'selectHeads',
 			'mouseup .checking': 'multiSelect',
@@ -97,43 +96,23 @@
         createdFilter: function(evt){
 			evt.currentTarget.parentNode.classList.remove("emptying");
         },
-        emptyFilter: function(evt){
-            evt.preventDefault();
-            evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.classList.contains("emptying") ? evt.currentTarget.parentNode.className : evt.currentTarget.parentNode.className + " emptying";
-            _.each(evt.currentTarget.parentNode.getElementsByTagName('input'), function(i){
+        replaceFilter: function(element){
+            _.each(this.$(element.parentNode.classList.contains("subject") ? ".subjectfilter" : (element.parentNode.classList.contains("date") ? ".datefilter" : ".emailfilter")), function(i){
+                i.classList.remove(element.parentNode.classList.contains("subject") ? "subjectfilter" : (element.parentNode.classList.contains("date") ? "datefilter" : "emailfilter"));
+                i.className = (element.parentNode.classList.contains("subject") && !i.classList.contains("emailfilter") && !i.classList.contains("datefilter") && !i.classList.contains("result")) ? i.className + " result" : (element.parentNode.classList.contains("date") && !i.classList.contains("emailfilter") && !i.classList.contains("subjectfilter") && !i.classList.contains("result") ? i.className + " result" : ( element.parentNode.classList.contains("email") && !i.classList.contains("subjectfilter") && !i.classList.contains("datefilter") && !i.classList.contains("result") ? i.className + " result" : i.className));
+            });
+        },
+        clearFilter: function(element){
+            element.parentNode.className = element.parentNode.classList.contains("emptying") ? element.parentNode.className : element.parentNode.className + " emptying";
+            _.each(element.parentNode.getElementsByTagName('input'), function(i){
                 i.value = "";
             });
-			evt.currentTarget.parentNode.classList.remove("used");
-			evt.currentTarget.parentNode.className = evt.currentTarget.parentNode.classList.contains("unused") ? evt.currentTarget.parentNode.className : evt.currentTarget.parentNode.className + " unused";
-            if(evt.currentTarget.parentNode.classList.contains("subject")){
-                _.each(this.$(".subjectfilter"),function(i){
-                    i.classList.remove("subjectfilter");
-                    if (!i.classList.contains("emailfilter") && !i.classList.contains("datefilter") && !i.classList.contains("result")){
-                        i.className = i.className + " result";
-                    }
-                    
-                });
-            }
-            if(evt.currentTarget.parentNode.classList.contains("date")){
-                _.each(this.$(".datefilter"),function(i){
-                    i.classList.remove("datefilter");
-                    if (!i.classList.contains("emailfilter") && !i.classList.contains("subjectfilter") && !i.classList.contains("result")){
-                        i.className = i.className + " result";
-                    }
-                });
-            }
-            if(evt.currentTarget.parentNode.classList.contains("email")){
-                _.each(this.$(".emailfilter"),function(i){
-                    i.classList.remove("emailfilter");
-                    if (!i.classList.contains("subjectfilter") && !i.classList.contains("datefilter") && !i.classList.contains("result")){
-                        i.className = i.className + " result";
-                    }
-                });
-            }
-			_.each(this.$(".middle.last"), function(i){
-					i.classList.remove("last");
-            });
-			_.each(this.$(".underlings"), function(i){
+            element.parentNode.classList.remove("used");
+			element.parentNode.className = element.parentNode.classList.contains("unused") ? element.parentNode.className : element.parentNode.className + " unused";
+            this.replaceFilter(element);
+        },
+        validateResults: function(){
+            _.each(this.$(".underlings"), function(i){
 				if(this.$(i).children(".result.selected").length < this.$(i).children(".result").length || i.parentNode.childNodes[1].classList.contains("noresults")){
 					i.parentNode.childNodes[1].classList.remove("selected");
 					i.parentNode.childNodes[1].className = i.parentNode.childNodes[1].classList.contains("unselected") ? i.parentNode.childNodes[1].className : i.parentNode.childNodes[1].className + " unselected";
@@ -152,6 +131,20 @@
                     last.className = last.classList.contains("last") ? last.className : last.className + " last";
                 }
 			});
+        },
+        emptyAllFilters: function(){
+            var here = this;
+            _.each(this.$(".filter.used .empty"), function(e){
+                here.clearFilter(e);
+                e.parentNode.classList.remove("emptying");
+            });
+            this.validateResults();
+			this.updateFiltered();
+        },
+        emptyFilter: function(evt){
+            evt.preventDefault();
+            this.clearFilter(evt.currentTarget);
+            this.validateResults();
 			this.updateFiltered();
         },
         createFilter: function(evt){
@@ -250,13 +243,14 @@
                     _.each(i.childNodes, function(a){
                         if (a.nodeName == "DIV" && !a.classList.contains("selected")){
                             _.each(a.getElementsByTagName("span"), function(b){
+                                var thisdatestring, startdatestring, enddatestring, todatestring, beginningstring;
                                 //get date and compare to both start and end dates.
                                 if (b.classList.contains("time")){
-                                    var thisdatestring = here.returnDate(b.getAttribute("timestamp"));
-                                    var startdatestring = startdate ? here.returnDate(startdate) : "";
-                                    var enddatestring = enddate ? here.returnDate(enddate) : "";
-									var todatestring = here.returnDate(new Date());
-									var beginningstring = new Date(2007);
+                                    thisdatestring = here.returnDate(b.getAttribute("timestamp"));
+                                    startdatestring = startdate ? here.returnDate(startdate) : "";
+                                    enddatestring = enddate ? here.returnDate(enddate) : "";
+									todatestring = here.returnDate(new Date());
+									beginningstring = new Date(2007);
                                 }
 								a.className = (b.classList.contains("time") && b.classList.contains("info")) ? (startdate || enddate ? (startdate && enddate ? (startdatestring <= thisdatestring && thisdatestring <= enddatestring ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("datefilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " datefilter")) : (startdate ? (startdatestring <= thisdatestring && thisdatestring <= todatestring ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("datefilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " datefilter")) : (beginningstring <= thisdatestring && thisdatestring <= enddatestring ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("datefilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " datefilter")))) : a.className) : a.className;
                                 a.className = (b.classList.contains("subject") && b.classList.contains("info")) ? (subject ? ( ~b.innerHTML.toLowerCase().indexOf(subject.toLowerCase()) ? (a.classList.contains("result") ? a.className : (a.classList.contains("subjectfilter") || a.classList.contains("emailfilter") || a.classList.contains("datefilter") ? a.className : a.className + " result")) : (a.classList.contains("subjectfilter") ? a.className.replace( /(^|\s)result(?!\S)/ , "") : a.className.replace( /(^|\s)result(?!\S)/ , "") + " subjectfilter")) : a.className) : a.className;
@@ -497,7 +491,7 @@
 			//find out which causes are selected.
 			var recover = [];
             var here = this;
-			var ms = 1200;
+			var ms = (this.setting("API calls per minute") < 200  && this.setting("API calls per minute") > 0) ? (60/this.setting("API calls per minute"))*1000 : 1200;
 			var offset = 0;
 			this.$('.result input[type="checkbox"]:checked').each(function(){
 				recover.push(this.value);
@@ -543,10 +537,10 @@
             return new Date(data);
         },
         returnDate: function(date) {
-            var date = new Date(date);
-            var day = date.getDate();
-            var month = date.getMonth();
-            var year = date.getFullYear();
+            var newdate = new Date(date);
+            var day = newdate.getDate();
+            var month = newdate.getMonth();
+            var year = newdate.getFullYear();
             return new Date(year, month, day);
             
         },
@@ -612,8 +606,9 @@
 					this.paginateTickets(url, storage);
 				});
 		},
-		doSomething: function() {
-			this.paginateTickets("/api/v2/suspended_tickets.json", "");
-		}
+        manageSuspendedTickets: function(){
+            this.switchTo('loading');
+            this.paginateTickets("/api/v2/suspended_tickets.json", "");
+        },
 	};
 }());

@@ -1,0 +1,11 @@
+<section data-main/>
+<div class="confirmation">
+<h1>Manage your Suspended Tickets</h1>
+<p>Zendesk suspends tickets for multiple reasons. Each reason is different and depends on the email that was received.
+If you want to know more about why Zendesk suspends tickets feel free to 
+<a href="https://support.zendesk.com/hc/en-us/articles/203663246-Managing-suspended-tickets-and-spam">learn more here.</a></p>
+<p>This app is ideal for when you want to quickly delete suspended tickets with particular suspension causes and also gives you the convenience of recovering the tickets that you don't think should have been suspended.</p>
+<button class="btn" id="confirmuse">Manage</button>
+<p>If you are unfamiliar with this app I have created a document with pro-tips and how to yield this awesome power!
+You also need to know that recovering a suspended ticket may result in another suspended ticket, because of the way Zendesk works.</p>
+</div>

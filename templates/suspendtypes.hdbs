@@ -27,6 +27,8 @@
                         </div>
                     {{/each}}
 					<br>
+                    <p class="warning red"><i>Note: Once suspended tickets are bulk deleted they are not recoverable.<i></p>
+                    <br>
 					<button class="btn submit recover manually">Recover Manually</button>
                     <button class="btn submit recover automatically">Recover Automatically</button>
                     <button class="btn submit delete">Delete</button>
@@ -39,9 +41,9 @@
 					<i class="icon-arrow-down icon"></i>
 					<i class="icon-arrow-up icon"></i>
 					<h2 class="infoheader">Some infos</h2><br>
-					<p class="totals">You can recover <b>{{total}}</b> suspended tickets in total.</p><br>
-					<p class="selected">You have selected <b><span id="selected">0</span></b> suspended tickets to be recovered.</p><br>
-					<p class="totals">You have filtered the results down to <b><span id="filtered">0</span></b> suspended tickets.</p><br>
+					<p class="totals">You can recover <b><span class="info">{{total}}</span></b> suspended tickets in total.</p><br>
+					<p class="selected">You have selected <b><span class="info" id="selected">0</span></b> suspended tickets to be recovered.</p><br>
+					<p class="totals">You have filtered the results down to <b><span class="info" id="filtered">0</span></b> suspended tickets.</p><br>
 					<p class="totals">You can filter here by <span class="filter date unused">date</span>, <span class="filter subject unused">subject</span> or <span class="filter email unused">email</span></p><br>
 				</div>
             </td>
