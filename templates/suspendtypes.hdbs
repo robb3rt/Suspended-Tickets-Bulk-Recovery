@@ -7,8 +7,11 @@
 					{{#each causes}}
                         <div class="cause">
                             <div oncontextmenu="return false" class="head item unselected">
-                                <span class="itemcount">0</span>
-                                <label><input type="checkbox" value="{{cause}}"/>{{cause}}</label>
+                                <span class="itemtotal">{{suspended.length}}</span>
+                                <label><input type="checkbox" value="{{cause}}"/>
+                                    {{cause}}
+                                    <span class="itemcount">0</span>
+                                </label>
                                 <span class="unfold expand">+</i>
                             </div>
                             <div class="underlings">

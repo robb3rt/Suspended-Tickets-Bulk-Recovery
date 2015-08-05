@@ -368,13 +368,13 @@
 					}
 				}
 			});
-			label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML = checked;
-			if (label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML === "0"){
+            this.$(label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1]).find(".itemcount")[0].innerHTML = checked;
+			if (this.$(label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1]).find(".itemcount")[0].innerHTML === "0"){
 				//remove used class, since nothing is selected
 				label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].classList.remove("used");
 			} else {
 				//add class saying this is used
-				if (label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[1].innerHTML == length){
+				if (this.$(label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1]).find(".itemcount")[0].innerHTML == length){
 					//add class marking that all items have been selected
                     label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1].childNodes[3].childNodes[0].checked = true;
 					this.markCause(label.childNodes[1].parentNode.parentNode.parentNode.parentNode.childNodes[1]);
@@ -434,7 +434,8 @@
             } else {
                evt.currentTarget.parentNode.parentNode.classList.remove("used"); 
             }
-			evt.currentTarget.parentNode.parentNode.childNodes[1].innerHTML = selected ? length : 0;
+            //TODO
+            this.$(evt.currentTarget.parentNode.parentNode).find(".itemcount")[0].innerHTML = selected ? length : 0;
 			here.updateSelected();
 		},
 		updateSelected: function(){
