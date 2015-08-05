@@ -216,10 +216,10 @@ div.causes {
 }
 
 .itemcount {
+    display: none;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	padding:5px 8px;
-	display:inline-block;
 	vertical-align: middle;
 	position: relative;
 	font-size: 12px;
@@ -234,8 +234,8 @@ div.causes {
 	display:inline-block;
 	vertical-align: middle;
 	position: relative;
-	margin-top: 10px;
-	margin-left: 10px;
+	margin-top: 4px;
+	margin-left: 4px;
 	float: left;
 	font-size: 12px;
 	text-align: center;
@@ -248,6 +248,23 @@ div.causes {
 	display:inline-block;
 	font-size: 12px;
 	text-align: center;
+}
+
+.used .itemtotal {
+    margin-top: 10px;
+	margin-left: 10px;
+}
+
+.selected .itemtotal {
+    margin-top: 4px;
+	margin-left: 4px;
+}
+
+.used .itemcount {
+    display:inline-block;
+}
+.selected .itemcount {
+    display:none;
 }
 
 .setup.filter {
