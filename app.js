@@ -127,6 +127,9 @@
 				}
                 if(this.$(i).children(".result:last").length > 0){
                     i.parentNode.childNodes[1].classList.remove("noresults");
+                    _.each(this.$(i).find(".result.last"), function(i){
+                        i.classList.remove("last");
+                    });
                     var last = this.$(i).children(".result:last")[0];
                     last.className = last.classList.contains("last") ? last.className : last.className + " last";
                 }
@@ -501,11 +504,9 @@
 			this.$('.result input[type="checkbox"]:checked').each(function(){
 				recover.push(this.value);
 			});
-			console.dir(this.setting("API calls per minute"));
             if (evt.currentTarget.classList.contains("manually") && evt.currentTarget.classList.contains("recover")){
                 _.each(recover, function(id, index) {
 					setTimeout(function () {
-						console.dir(index);
 						here.ajax('recoverSuspendedTicket', id);
 					}, ms + offset);
 					offset += ms;
@@ -521,7 +522,6 @@
                 }
 				_.each(many, function(ids, index) {
 					setTimeout(function () {
-						console.dir(index);
 						if (evt.currentTarget.classList.contains("automatically") && evt.currentTarget.classList.contains("recover")){
 							here.ajax('recoverMany', ids).done(function(data) {
 								here.paginateTickets("/api/v2/suspended_tickets.json", "");
