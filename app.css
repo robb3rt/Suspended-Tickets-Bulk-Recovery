@@ -217,6 +217,9 @@ div.causes {
 
 .itemcount {
     display: none;
+    float: left;
+    margin-top: 4px;
+    margin-left: 4px;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	padding:5px 8px;
@@ -250,14 +253,8 @@ div.causes {
 	text-align: center;
 }
 
-.used .itemtotal {
-    margin-top: 10px;
-	margin-left: 10px;
-}
-
-.selected .itemtotal {
-    margin-top: 4px;
-	margin-left: 4px;
+.noresults .itemtotal {
+    display:none;
 }
 
 .used .itemcount {

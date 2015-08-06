@@ -434,16 +434,20 @@
             } else {
                evt.currentTarget.parentNode.parentNode.classList.remove("used"); 
             }
-            //TODO
             this.$(evt.currentTarget.parentNode.parentNode).find(".itemcount")[0].innerHTML = selected ? length : 0;
 			here.updateSelected();
 		},
 		updateSelected: function(){
-			this.$('#selected')[0].innerHTML = this.$('.underlings input[type=checkbox]:checked').length;
+			this.$("#selected")[0].innerHTML = this.$(".underlings input[type=checkbox]:checked").length;
 		},
 		updateFiltered: function(){
-			this.$('#filtered')[0].innerHTML = this.$('.result').length;
-			if(this.$('.filter.used').length > 0) {
+			this.$("#filtered")[0].innerHTML = this.$(".result").length;
+            var here = this;
+            _.each(this.$(".itemtotal"), function(i){
+                i.innerHTML = here.$(i.parentNode.parentNode).find(".result").length;
+            });
+            //TODO
+			if(this.$(".filter.used").length > 0) {
 				this.$("#clearfilters")[0].style.display = "inline-block";
 			} else {
 				this.$("#clearfilters")[0].style.display = "none";
